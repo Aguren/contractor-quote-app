@@ -205,40 +205,40 @@ function updateCalculations() {
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
   document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  // 2. Update Live On-Page Document Preview Immediately
+  // 2. Update Document Data in Preview Card
   const brand = StorageManager.getBranding();
-  document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
-  document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
-  document.getElementById('printDocType').innerText = `OFFICIAL ${currentDocType.toUpperCase()}`;
-  document.getElementById('printDate').innerText = new Date().toLocaleDateString();
-  document.getElementById('printClientName').innerText = document.getElementById('clientName').value || 'Valued Customer';
-  document.getElementById('printJobScope').innerText = document.getElementById('projectName').value || 'Electrical Work Scope';
+  document.getElementById('docBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
+  document.getElementById('docBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
+  document.getElementById('docType').innerText = `OFFICIAL ${currentDocType.toUpperCase()}`;
+  document.getElementById('docDate').innerText = new Date().toLocaleDateString();
+  document.getElementById('docClientName').innerText = document.getElementById('clientName').value || 'Valued Customer';
+  document.getElementById('docJobScope').innerText = document.getElementById('projectName').value || 'Electrical Work Scope';
 
-  const tbody = document.getElementById('printTableBody');
+  const tbody = document.getElementById('docTableBody');
   if (tbody) {
     tbody.innerHTML = '';
     if (lineItems.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="padding: 12px; text-align: center; font-style: italic; color: #64748b;">No line items added.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 12px; text-align: center; font-style: italic; color: #64748b;">No line items added yet.</td></tr>`;
     } else {
       lineItems.forEach(item => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = "1px solid #cbd5e1";
         tr.innerHTML = `
-          <td style="padding: 8px 4px; text-align: left;">${item.desc}</td>
-          <td style="padding: 8px 4px; text-align: center;">${item.type}</td>
-          <td style="padding: 8px 4px; text-align: center;">${item.qty}</td>
-          <td style="padding: 8px 4px; text-align: right;">$${item.unitPrice.toFixed(2)}</td>
-          <td style="padding: 8px 4px; text-align: right;">$${(item.qty * item.unitPrice).toFixed(2)}</td>
+          <td style="padding: 6px 2px; text-align: left;">${item.desc}</td>
+          <td style="padding: 6px 2px; text-align: center;">${item.type}</td>
+          <td style="padding: 6px 2px; text-align: center;">${item.qty}</td>
+          <td style="padding: 6px 2px; text-align: right;">$${item.unitPrice.toFixed(2)}</td>
+          <td style="padding: 6px 2px; text-align: right;">$${(item.qty * item.unitPrice).toFixed(2)}</td>
         `;
         tbody.appendChild(tr);
       });
     }
   }
 
-  document.getElementById('printSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
-  document.getElementById('printTravelFee').innerText = `$${travelFee.toFixed(2)}`;
-  document.getElementById('printTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
-  document.getElementById('printGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
+  document.getElementById('docSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
+  document.getElementById('docTravelFee').innerText = `$${travelFee.toFixed(2)}`;
+  document.getElementById('docTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
+  document.getElementById('docGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
   return { ...totals, travelFee, grandTotalWithTravel };
 }
@@ -270,7 +270,7 @@ function bindEvents() {
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
   document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
-  document.getElementById('btnPrintPDF').addEventListener('click', triggerNativePrint);
+  document.getElementById('btnPrintPDF').addEventListener('click', printIsolatedDocument);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
   document.getElementById('btnCancelSettings').addEventListener('click', toggleSettingsModal);
@@ -362,10 +362,41 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// NATIVE SYSTEM PRINT / SAVE AS PDF (TRIGGERS NATIVE DIALOG WITH Direct CHOICE TO PRINT OR SAVE)
-function triggerNativePrint() {
+// ISOLATED POPUP PRINT: OPENS CLEAN WINDOW WITH ONLY THE DOCUMENT CONTENT TO PREVENT APP LEAKAGE
+function printIsolatedDocument() {
   updateCalculations();
-  window.print();
+  const docHtml = document.getElementById('documentSheet').outerHTML;
+
+  const printWindow = window.open('', '_blank', 'width=800,height=1000');
+  if (!printWindow) {
+    alert('Please allow popups for this app to print/save your document.');
+    return;
+  }
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${currentDocType} - ${document.getElementById('clientName').value || 'Customer'}</title>
+        <style>
+          @page { size: portrait; margin: 0.5in; }
+          body { font-family: Arial, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 10px; }
+          table { border-collapse: collapse; }
+        </style>
+      </head>
+      <body>
+        ${docHtml}
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() { window.close(); };
+          };
+        </script>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
 }
 
 function sendEmailDoc() {
