@@ -301,9 +301,6 @@ function bindEvents() {
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
   document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
-  document.getElementById('btnSendSMS').addEventListener('click', sendSMSDoc);
-  document.getElementById('btnSendWhatsApp').addEventListener('click', sendWhatsAppDoc);
-
   document.getElementById('btnPrintPDF').addEventListener('click', printIsolatedDocument);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
@@ -342,7 +339,6 @@ function saveCurrentProject() {
   projects[currentProjectId] = {
     id: currentProjectId,
     clientName: document.getElementById('clientName').value,
-    clientPhone: document.getElementById('clientPhone').value,
     clientEmail: document.getElementById('clientEmail').value,
     projectName: document.getElementById('projectName').value,
     docType: currentDocType,
@@ -368,7 +364,6 @@ function loadSelectedProject() {
   const p = projects[id];
 
   document.getElementById('clientName').value = p.clientName || '';
-  document.getElementById('clientPhone').value = p.clientPhone || '';
   document.getElementById('clientEmail').value = p.clientEmail || '';
   document.getElementById('projectName').value = p.projectName || '';
   document.getElementById('projectStatus').value = p.status || 'Draft';
@@ -387,7 +382,6 @@ function loadSelectedProject() {
 function createNewProject() {
   currentProjectId = null;
   document.getElementById('clientName').value = '';
-  document.getElementById('clientPhone').value = '';
   document.getElementById('clientEmail').value = '';
   document.getElementById('projectName').value = '';
   document.getElementById('projectStatus').value = 'Draft';
@@ -440,30 +434,6 @@ function printIsolatedDocument() {
   `);
 
   printWindow.document.close();
-}
-
-function sendSMSDoc() {
-  const brand = StorageManager.getBranding();
-  const clientName = document.getElementById('clientName').value || 'Customer';
-  const phone = document.getElementById('clientPhone').value.replace(/[^0-9]/g, '');
-  const proj = document.getElementById('projectName').value || 'Electrical Work';
-  const totals = updateCalculations();
-
-  const msg = `Hello ${clientName}, here is your ${currentDocType} from ${brand.name || 'Assan Balkov Electrical'} for ${proj}. Total: $${totals.grandTotalWithTravel.toFixed(2)} (Deposit due: $${totals.depositVal.toFixed(2)}). Payment: Check or Cash only. Please reply to confirm!`;
-  
-  window.location.href = `sms:${phone}?body=${encodeURIComponent(msg)}`;
-}
-
-function sendWhatsAppDoc() {
-  const brand = StorageManager.getBranding();
-  const clientName = document.getElementById('clientName').value || 'Customer';
-  const phone = document.getElementById('clientPhone').value.replace(/[^0-9]/g, '');
-  const proj = document.getElementById('projectName').value || 'Electrical Work';
-  const totals = updateCalculations();
-
-  const msg = `Hello ${clientName}, here is your official ${currentDocType} from ${brand.name || 'Assan Balkov Electrical'} for ${proj}.\n\nTotal Due: $${totals.grandTotalWithTravel.toFixed(2)}\nDeposit Due Now: $${totals.depositVal.toFixed(2)}\nBalance Upon Completion: $${totals.balanceVal.toFixed(2)}\n\nPayment Method: CHECK OR CASH ONLY.\n\nPlease reply directly to this message to approve. Thank you!`;
-  
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function sendEmailDoc() {
