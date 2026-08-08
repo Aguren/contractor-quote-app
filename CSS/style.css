@@ -16,15 +16,15 @@ input, select, button {
   display: none !important; 
 }
 
-/* Force Portrait Dimensions */
+/* Page Setup for Portrait */
 @page {
   size: portrait;
-  margin: 0.5in;
+  margin: 0.4in;
 }
 
 /* Print Overrides */
 @media print {
-  /* Completely hide all on-screen app controls */
+  /* Hide all on-screen app elements during print */
   #app-container, header, main, nav, footer, #settingsModal, .no-print { 
     display: none !important; 
     visibility: hidden !important;
@@ -32,7 +32,7 @@ input, select, button {
     overflow: hidden !important;
   }
 
-  /* Force clean block-level display for the print document */
+  /* Force display of the document template in full-width block mode */
   #printTemplate { 
     display: block !important; 
     visibility: visible !important;
@@ -40,7 +40,6 @@ input, select, button {
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
-    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
@@ -51,7 +50,5 @@ input, select, button {
     color: #000000 !important; 
     padding: 0 !important; 
     margin: 0 !important;
-    font-size: 12px !important;
-    font-family: Arial, sans-serif !important;
   }
 }
