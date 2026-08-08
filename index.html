@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=18">
+  <link rel="stylesheet" href="css/styles.css?v=19">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -36,9 +36,15 @@
 
       <!-- PROJECT MANAGEMENT STRIP -->
       <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center gap-2">
           <label class="text-xs font-bold uppercase text-amber-400">Active Job / Project</label>
-          <span id="activeStatusBadge" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500 text-xs px-2 py-0.5 rounded-full font-bold">Draft</span>
+          <select id="projectStatus" class="bg-slate-900 border border-slate-600 text-xs font-bold text-emerald-400 rounded px-2 py-1 outline-none">
+            <option value="Draft">Draft</option>
+            <option value="Sent">Sent to Client</option>
+            <option value="Approved">Approved</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed / Paid</option>
+          </select>
         </div>
         <select id="projectSelector" class="w-full bg-slate-900 border-2 border-slate-600 rounded-lg px-3 py-2 font-bold text-white outline-none">
           <!-- Populated via JS -->
@@ -63,6 +69,10 @@
             <input type="text" id="clientName" placeholder="e.g. Mary Smith" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
           </div>
           <div>
+            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Mobile Phone (for SMS/WhatsApp)</label>
+            <input type="tel" id="clientPhone" placeholder="(570) 555-0199" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
+          </div>
+          <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Email</label>
             <input type="email" id="clientEmail" placeholder="mary@example.com" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
           </div>
@@ -78,7 +88,6 @@
         <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">⚡ Master Trade Preset Library</h2>
         
         <div class="space-y-3">
-          <!-- Trade Category Selector -->
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">1. Select Trade Specialty</label>
             <select id="tradeSelector" class="w-full bg-slate-900 border-2 border-amber-500/50 rounded-lg p-2.5 text-amber-300 font-extrabold">
@@ -89,15 +98,13 @@
             </select>
           </div>
 
-          <!-- Sub-Category Filter -->
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">2. Filter Sub-Category</label>
             <select id="presetCategory" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
-              <!-- Dynamically populated based on Trade selection -->
+              <!-- Dynamically populated -->
             </select>
           </div>
 
-          <!-- Presets Dropdown -->
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">3. Select Specific Job Preset</label>
             <select id="presetSelector" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
@@ -105,7 +112,6 @@
             </select>
           </div>
 
-          <!-- Add Button -->
           <button id="btnAddPreset" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-lg text-sm shadow flex items-center justify-center gap-1">
             ➕ Add Selected Preset
           </button>
@@ -115,7 +121,7 @@
       <!-- LINE ITEMS SECTION -->
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
         <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-          <h2 class="text-base font-extrabold text-white">Itemized Scope & Pricing</h2>
+          <h2 class="text-base font-extrabold text-white">Itemized Scope & Change Orders</h2>
           <button id="btnAddLineItem" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs">
             + Custom Item
           </button>
@@ -155,7 +161,6 @@
           </div>
         </div>
 
-        <!-- Deposit Terms Selector -->
         <div>
           <label class="block text-xs font-bold text-slate-400 mb-1">Required Job Deposit</label>
           <select id="depositPct" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
@@ -167,7 +172,7 @@
         </div>
       </div>
 
-      <!-- GRAND TOTAL & ACTIONS -->
+      <!-- GRAND TOTAL & MULTI-CHANNEL SHARING -->
       <div class="bg-slate-950 p-5 rounded-2xl border-2 border-amber-500/50 shadow-2xl space-y-4">
         <div class="space-y-2 text-sm">
           <div class="flex justify-between text-slate-400">
@@ -196,7 +201,6 @@
             <span id="dispGrandTotal">$0.00</span>
           </div>
 
-          <!-- Deposit & Balance Breakdown -->
           <div id="depositBreakdownRow" class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 space-y-1 mt-2">
             <div class="flex justify-between text-xs text-amber-300 font-bold">
               <span>Deposit Due Now:</span>
@@ -209,11 +213,19 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 pt-2">
-          <button id="btnSendEmail" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2">
-            ✉️ Send via Email App
+        <div class="space-y-2 pt-2">
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnSendSMS" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+              💬 Text SMS
+            </button>
+            <button id="btnSendWhatsApp" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+              📱 WhatsApp
+            </button>
+          </div>
+          <button id="btnSendEmail" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-sm shadow-lg flex items-center justify-center gap-2">
+            ✉️ Send via Email
           </button>
-          <button id="btnPrintPDF" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2">
+          <button id="btnPrintPDF" class="w-full bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
             📄 Print / Save PDF Document
           </button>
         </div>
@@ -263,7 +275,7 @@
               </tbody>
             </table>
 
-            <!-- TOTALS & DEPOSIT BREAKDOWN -->
+            <!-- TOTALS BREAKDOWN -->
             <table style="width: 100%; margin-bottom: 14px; border-collapse: collapse;">
               <tr>
                 <td style="width: 40%;"></td>
@@ -286,7 +298,6 @@
                         <td style="font-size: 12px; font-weight: 900; color: #0f172a; padding-top: 4px;">TOTAL DUE:</td>
                         <td style="font-size: 12px; font-weight: 900; text-align: right; color: #0f172a; padding-top: 4px;" id="docGrandTotal">$0.00</td>
                       </tr>
-                      <!-- Dynamic Deposit Row -->
                       <tr id="docDepositRow" style="border-top: 1px dashed #cbd5e1; color: #d97706; font-weight: bold;">
                         <td style="padding-top: 4px;">Deposit Due Now (<span id="docDepositLabel">50%</span>):</td>
                         <td style="text-align: right; padding-top: 4px;" id="docDepositVal">$0.00</td>
@@ -301,7 +312,7 @@
               </tr>
             </table>
 
-            <!-- TERMS & SIGNATURE BLOCK (SPECIFIES CHECK OR CASH ONLY) -->
+            <!-- TERMS & SIGNATURE BLOCK -->
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;">
               <p style="font-size: 9px; font-weight: 700; text-transform: uppercase; margin: 0 0 3px 0; color: #0f172a;">TERMS & WORK AUTHORIZATION</p>
               <p style="font-size: 8.5px; color: #475569; margin: 0 0 8px 0; line-height: 1.3;">
