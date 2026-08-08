@@ -270,7 +270,7 @@ function bindEvents() {
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
   document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
-  document.getElementById('btnDownloadPDF').addEventListener('click', downloadPDF);
+  document.getElementById('btnPrintPDF').addEventListener('click', triggerNativePrint);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
   document.getElementById('btnCancelSettings').addEventListener('click', toggleSettingsModal);
@@ -362,37 +362,10 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// BULLETPROOF PDF GENERATOR: CLONES LIVE TEMPLATE INTO UNCONSTRAINED OFF-SCREEN CONTAINER
-function downloadPDF() {
+// NATIVE SYSTEM PRINT / SAVE AS PDF (TRIGGERS NATIVE DIALOG WITH Direct CHOICE TO PRINT OR SAVE)
+function triggerNativePrint() {
   updateCalculations();
-  const source = document.getElementById('printTemplate');
-  const client = document.getElementById('clientName').value || 'Customer';
-
-  // Create temporary container for clean capture
-  const cloneWrapper = document.createElement('div');
-  cloneWrapper.style.position = 'fixed';
-  cloneWrapper.style.left = '0';
-  cloneWrapper.style.top = '0';
-  cloneWrapper.style.width = '750px';
-  cloneWrapper.style.zIndex = '-9999';
-  cloneWrapper.style.background = '#ffffff';
-  cloneWrapper.style.padding = '20px';
-
-  const cloneNode = source.cloneNode(true);
-  cloneWrapper.appendChild(cloneNode);
-  document.body.appendChild(cloneWrapper);
-
-  const opt = {
-    margin:       [0.3, 0.3, 0.3, 0.3],
-    filename:     `Estimate_${client.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false },
-    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(cloneNode).save().then(() => {
-    document.body.removeChild(cloneWrapper);
-  });
+  window.print();
 }
 
 function sendEmailDoc() {
