@@ -11,25 +11,27 @@ input, select, button {
   justify-content: center; 
 }
 
-@media print {
-  body { 
-    background: #fff !important; 
-    color: #000 !important; 
-    padding: 0 !important; 
-  }
-  .no-print { 
-    display: none !important; 
-  }
-  .print-only { 
-    display: block !important; 
-  }
-  .print-card { 
-    border: none !important; 
-    box-shadow: none !important; 
-    padding: 0 !important; 
-  }
+/* Hide print layout on normal screen */
+.print-only { 
+  display: none !important; 
 }
 
-.print-only { 
-  display: none; 
+/* Print Mode overrides */
+@media print {
+  /* Hide the entire app layout, headers, and modals */
+  header, main, .no-print, #settingsModal { 
+    display: none !important; 
+  }
+
+  /* Show ONLY the official print document template */
+  #printTemplate, .print-only { 
+    display: block !important; 
+  }
+
+  body { 
+    background: #ffffff !important; 
+    color: #000000 !important; 
+    padding: 0 !important; 
+    margin: 0 !important;
+  }
 }
