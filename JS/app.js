@@ -197,7 +197,7 @@ function updateCalculations() {
   const totals = Calculator.calculateTotals(lineItems, markup, tax);
   const grandTotalWithTravel = totals.grandTotal + travelFee;
 
-  // 1. Update On-Screen Display
+  // 1. Update On-Screen App Controls Display
   document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
   document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
   document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
@@ -205,7 +205,7 @@ function updateCalculations() {
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
   document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  // 2. Update Live Document Preview Template
+  // 2. Update Live On-Page Document Preview Details Immediately
   const brand = StorageManager.getBranding();
   document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
   document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
@@ -270,18 +270,6 @@ function bindEvents() {
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
   document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
-  
-  // Open and Close Preview Modal Event Bindings
-  document.getElementById('btnOpenPreview').addEventListener('click', () => {
-    updateCalculations();
-    document.getElementById('pdfModal').classList.remove('hidden');
-  });
-
-  document.getElementById('btnClosePreview').addEventListener('click', () => {
-    document.getElementById('pdfModal').classList.add('hidden');
-  });
-
-  // Download Visible Canvas directly into PDF
   document.getElementById('btnDownloadPDF').addEventListener('click', downloadPDF);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
@@ -374,8 +362,9 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// CAPTURES VISIBLE PREVIEW ELEMENT DIRECTLY TO PERFECT PORTRAIT PDF
+// RELIABLE PDF DOWNLOAD FUNCTION (CAPTURES VISIBLE PREVIEW CANVAS DIRECTLY)
 function downloadPDF() {
+  updateCalculations();
   const element = document.getElementById('printTemplate');
   const client = document.getElementById('clientName').value || 'Customer';
 
