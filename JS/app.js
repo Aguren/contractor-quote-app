@@ -205,7 +205,7 @@ function updateCalculations() {
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
   document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  // 2. Update Live Off-Screen PDF Template
+  // 2. Update Live Document Preview Template
   const brand = StorageManager.getBranding();
   document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
   document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
@@ -222,7 +222,7 @@ function updateCalculations() {
     } else {
       lineItems.forEach(item => {
         const tr = document.createElement('tr');
-        tr.style.borderBottom = "1px solid #e2e8f0";
+        tr.style.borderBottom = "1px solid #cbd5e1";
         tr.innerHTML = `
           <td style="padding: 8px 4px; text-align: left;">${item.desc}</td>
           <td style="padding: 8px 4px; text-align: center;">${item.type}</td>
@@ -270,7 +270,19 @@ function bindEvents() {
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
   document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
-  document.getElementById('btnExportPDF').addEventListener('click', exportPDF);
+  
+  // Open and Close Preview Modal Event Bindings
+  document.getElementById('btnOpenPreview').addEventListener('click', () => {
+    updateCalculations();
+    document.getElementById('pdfModal').classList.remove('hidden');
+  });
+
+  document.getElementById('btnClosePreview').addEventListener('click', () => {
+    document.getElementById('pdfModal').classList.add('hidden');
+  });
+
+  // Download Visible Canvas directly into PDF
+  document.getElementById('btnDownloadPDF').addEventListener('click', downloadPDF);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
   document.getElementById('btnCancelSettings').addEventListener('click', toggleSettingsModal);
@@ -362,17 +374,16 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// GUARANTEED PERFECT PORTRAIT PDF EXPORT VIA html2pdf.js
-function exportPDF() {
-  updateCalculations();
+// CAPTURES VISIBLE PREVIEW ELEMENT DIRECTLY TO PERFECT PORTRAIT PDF
+function downloadPDF() {
   const element = document.getElementById('printTemplate');
   const client = document.getElementById('clientName').value || 'Customer';
 
   const opt = {
-    margin:       [0.4, 0.4, 0.4, 0.4],
+    margin:       [0.3, 0.3, 0.3, 0.3],
     filename:     `Estimate_${client.replace(/[^a-z0-9]/gi, '_')}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
+    html2canvas:  { scale: 2, useCORS: true, logging: false },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
