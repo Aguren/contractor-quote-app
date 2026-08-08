@@ -47,7 +47,7 @@ function renderLineItems() {
             <span>Change Order</span>
           </label>
         </div>
-        <button class="btn-remove-item text-red-400 font-bold text-xs px-1" data-index="${i}">✕ Remove</button>
+        <button type="button" class="btn-remove-item text-red-400 font-bold text-xs px-1" data-index="${i}">✕ Remove</button>
       </div>
       <input type="text" value="${item.desc}" placeholder="Description" class="item-desc w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white" data-index="${i}">
       <div class="grid grid-cols-2 gap-2 text-xs">
@@ -78,13 +78,12 @@ function attachLineItemListeners() {
   document.querySelectorAll('.item-change-order').forEach(el => {
     el.addEventListener('change', (e) => {
       lineItems[e.target.dataset.index].isChangeOrder = e.target.checked;
-      renderLineItems();
       updateCalculations();
     });
   });
 
   document.querySelectorAll('.item-desc').forEach(el => {
-    el.addEventListener('change', (e) => {
+    el.addEventListener('input', (e) => {
       lineItems[e.target.dataset.index].desc = e.target.value;
       updateCalculations();
     });
@@ -316,11 +315,16 @@ ${brand.info || '(570) 236-6942'}`;
 }
 
 function bindEvents() {
-  document.getElementById('btnAddLineItem').addEventListener('click', () => {
+  const addBtn = document.getElementById('btnAddLineItem');
+  
+  const handleAddLineItem = (e) => {
+    e.preventDefault();
     lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material', isChangeOrder: false });
     renderLineItems();
     updateCalculations();
-  });
+  };
+
+  addBtn.addEventListener('click', handleAddLineItem);
 
   document.getElementById('tradeSelector').addEventListener('change', updateCategoryDropdown);
   document.getElementById('presetCategory').addEventListener('change', populatePresetDropdown);
@@ -343,7 +347,7 @@ function bindEvents() {
   document.getElementById('btnArchiveProject').addEventListener('click', archiveCurrentProject);
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
-  document.getElementById('btnPrintPDF').addEventListener('click', printMobileDocument);
+  document.getElementById('btnPrintPDF').addEventListener('click', printIsolatedDocument);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
   document.getElementById('btnCancelSettings').addEventListener('click', toggleSettingsModal);
@@ -446,18 +450,17 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// RELIABLE MOBILE & DESKTOP PRINT / PDF VIA HIDDEN IFRAME (NO POPUP BLOCKING)
-function printMobileDocument() {
+function printIsolatedDocument() {
   updateCalculations();
   const docHtml = document.getElementById('documentSheet').outerHTML;
-  const iframe = document.getElementById('mobilePrintFrame');
 
-  if (!iframe) return;
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    window.print();
+    return;
+  }
 
-  const frameDoc = iframe.contentWindow || iframe.contentDocument.document || iframe.contentDocument;
-  
-  frameDoc.document.open();
-  frameDoc.document.write(`
+  printWindow.document.write(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -470,15 +473,17 @@ function printMobileDocument() {
       </head>
       <body>
         ${docHtml}
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() { window.close(); };
+          };
+        </script>
       </body>
     </html>
   `);
-  frameDoc.document.close();
 
-  setTimeout(() => {
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-  }, 300);
+  printWindow.document.close();
 }
 
 function toggleSettingsModal() {
