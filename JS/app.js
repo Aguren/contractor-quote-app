@@ -2,7 +2,6 @@ let currentDocType = 'Quote';
 let currentProjectId = null;
 let projects = StorageManager.getProjects();
 
-// Initialized empty so no default 200A Panel Upgrade appears automatically
 let lineItems = [];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -190,16 +189,23 @@ function addSelectedPresetItem() {
 function updateCalculations() {
   const markup = document.getElementById('markupPct').value;
   const tax = document.getElementById('taxPct').value;
+
+  const miles = parseFloat(document.getElementById('mileageMiles').value) || 0;
+  const mileRate = parseFloat(document.getElementById('mileageRate').value) || 0;
+  const travelFee = miles * mileRate;
+
   const totals = Calculator.calculateTotals(lineItems, markup, tax);
+  const grandTotalWithTravel = totals.grandTotal + travelFee;
 
   // 1. Update On-Screen Display
   document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
   document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
   document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
+  document.getElementById('dispTravel').innerText = `$${travelFee.toFixed(2)}`;
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
-  document.getElementById('dispGrandTotal').innerText = `$${totals.grandTotal.toFixed(2)}`;
+  document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  // 2. Update Live Print/PDF Template Details Immediately
+  // 2. Update Live Off-Screen PDF Template
   const brand = StorageManager.getBranding();
   document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
   document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
@@ -212,17 +218,17 @@ function updateCalculations() {
   if (tbody) {
     tbody.innerHTML = '';
     if (lineItems.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center italic text-slate-400">No line items added.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 12px; text-align: center; font-style: italic; color: #64748b;">No line items added.</td></tr>`;
     } else {
       lineItems.forEach(item => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-200";
+        tr.style.borderBottom = "1px solid #e2e8f0";
         tr.innerHTML = `
-          <td class="py-1.5">${item.desc}</td>
-          <td class="py-1.5 text-center">${item.type}</td>
-          <td class="py-1.5 text-center">${item.qty}</td>
-          <td class="py-1.5 text-right">$${item.unitPrice.toFixed(2)}</td>
-          <td class="py-1.5 text-right">$${(item.qty * item.unitPrice).toFixed(2)}</td>
+          <td style="padding: 8px 4px; text-align: left;">${item.desc}</td>
+          <td style="padding: 8px 4px; text-align: center;">${item.type}</td>
+          <td style="padding: 8px 4px; text-align: center;">${item.qty}</td>
+          <td style="padding: 8px 4px; text-align: right;">$${item.unitPrice.toFixed(2)}</td>
+          <td style="padding: 8px 4px; text-align: right;">$${(item.qty * item.unitPrice).toFixed(2)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -230,10 +236,11 @@ function updateCalculations() {
   }
 
   document.getElementById('printSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
+  document.getElementById('printTravelFee').innerText = `$${travelFee.toFixed(2)}`;
   document.getElementById('printTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
-  document.getElementById('printGrandTotal').innerText = `$${totals.grandTotal.toFixed(2)}`;
+  document.getElementById('printGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  return totals;
+  return { ...totals, travelFee, grandTotalWithTravel };
 }
 
 function bindEvents() {
@@ -250,6 +257,9 @@ function bindEvents() {
 
   document.getElementById('clientName').addEventListener('input', updateCalculations);
   document.getElementById('projectName').addEventListener('input', updateCalculations);
+
+  document.getElementById('mileageMiles').addEventListener('input', updateCalculations);
+  document.getElementById('mileageRate').addEventListener('input', updateCalculations);
 
   document.getElementById('btnQuote').addEventListener('click', () => setDocumentType('Quote'));
   document.getElementById('btnInvoice').addEventListener('click', () => setDocumentType('Invoice'));
@@ -301,6 +311,8 @@ function saveCurrentProject() {
     docType: currentDocType,
     markupPct: document.getElementById('markupPct').value,
     taxPct: document.getElementById('taxPct').value,
+    mileageMiles: document.getElementById('mileageMiles').value,
+    mileageRate: document.getElementById('mileageRate').value,
     lineItems: lineItems
   };
 
@@ -320,7 +332,9 @@ function loadSelectedProject() {
   document.getElementById('clientEmail').value = p.clientEmail || '';
   document.getElementById('projectName').value = p.projectName || '';
   document.getElementById('markupPct').value = p.markupPct || 15;
-  document.getElementById('taxPct').value = p.taxPct || 8;
+  document.getElementById('taxPct').value = p.taxPct || 6;
+  document.getElementById('mileageMiles').value = p.mileageMiles || 0;
+  document.getElementById('mileageRate').value = p.mileageRate || 0.67;
 
   lineItems = p.lineItems || [];
   setDocumentType(p.docType || 'Quote');
@@ -333,6 +347,7 @@ function createNewProject() {
   document.getElementById('clientName').value = '';
   document.getElementById('clientEmail').value = '';
   document.getElementById('projectName').value = '';
+  document.getElementById('mileageMiles').value = 0;
   lineItems = [];
   document.getElementById('projectSelector').value = '';
   renderLineItems();
@@ -347,20 +362,21 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
+// GUARANTEED PERFECT PORTRAIT PDF EXPORT VIA html2pdf.js
 function exportPDF() {
   updateCalculations();
-  const appContainer = document.getElementById('app-container');
-  const printTemplate = document.getElementById('printTemplate');
+  const element = document.getElementById('printTemplate');
+  const client = document.getElementById('clientName').value || 'Customer';
 
-  if (appContainer) appContainer.style.setProperty('display', 'none', 'important');
-  if (printTemplate) printTemplate.style.setProperty('display', 'flex', 'important');
+  const opt = {
+    margin:       [0.4, 0.4, 0.4, 0.4],
+    filename:     `Estimate_${client.replace(/[^a-z0-9]/gi, '_')}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
 
-  window.print();
-
-  setTimeout(() => {
-    if (appContainer) appContainer.style.removeProperty('display');
-    if (printTemplate) printTemplate.style.removeProperty('display');
-  }, 500);
+  html2pdf().set(opt).from(element).save();
 }
 
 function sendEmailDoc() {
@@ -383,9 +399,10 @@ Below are the project details and estimate breakdown for: ${proj}.
 --- ITEMIZED BREAKDOWN ---
 ${summary}
 Subtotal: $${(totals.matSub + totals.laborSub).toFixed(2)}
+Travel Fee: $${totals.travelFee.toFixed(2)}
 Tax & Overhead: $${(totals.markupVal + totals.taxVal).toFixed(2)}
 ---------------------------
-TOTAL AMOUNT: $${totals.grandTotal.toFixed(2)}
+TOTAL AMOUNT: $${totals.grandTotalWithTravel.toFixed(2)}
 
 Please reply directly to this email if you have any questions or are ready to approve.
 
