@@ -2,10 +2,8 @@ let currentDocType = 'Quote';
 let currentProjectId = null;
 let projects = StorageManager.getProjects();
 
-let lineItems = [
-  { desc: '200A Main Panel Upgrade (Meter Combo)', qty: 1, unitPrice: 2450, type: 'Labor' },
-  { desc: '20A GFCI Outlet Installation (Bathroom/Kitchen)', qty: 2, unitPrice: 95, type: 'Labor' }
-];
+// Initialized empty so no default 200A Panel Upgrade appears automatically
+let lineItems = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   initBranding();
@@ -28,6 +26,11 @@ function initBranding() {
 function renderLineItems() {
   const container = document.getElementById('itemsContainer');
   container.innerHTML = '';
+
+  if (lineItems.length === 0) {
+    container.innerHTML = `<div class="text-xs text-slate-400 italic text-center py-2">No items added yet. Choose a preset above or tap + Custom Item.</div>`;
+    return;
+  }
 
   lineItems.forEach((item, i) => {
     const row = document.createElement('div');
@@ -184,7 +187,6 @@ function addSelectedPresetItem() {
   updateCalculations();
 }
 
-// REAL-TIME UPDATER FOR BOTH SCREEN AND PRINT INVOICE PREVIEW
 function updateCalculations() {
   const markup = document.getElementById('markupPct').value;
   const tax = document.getElementById('taxPct').value;
@@ -209,18 +211,22 @@ function updateCalculations() {
   const tbody = document.getElementById('printTableBody');
   if (tbody) {
     tbody.innerHTML = '';
-    lineItems.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.className = "border-b border-slate-200";
-      tr.innerHTML = `
-        <td class="py-2">${item.desc}</td>
-        <td class="py-2 text-center">${item.type}</td>
-        <td class="py-2 text-center">${item.qty}</td>
-        <td class="py-2 text-right">$${item.unitPrice.toFixed(2)}</td>
-        <td class="py-2 text-right">$${(item.qty * item.unitPrice).toFixed(2)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    if (lineItems.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center italic text-slate-400">No line items added.</td></tr>`;
+    } else {
+      lineItems.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-200";
+        tr.innerHTML = `
+          <td class="py-1.5">${item.desc}</td>
+          <td class="py-1.5 text-center">${item.type}</td>
+          <td class="py-1.5 text-center">${item.qty}</td>
+          <td class="py-1.5 text-right">$${item.unitPrice.toFixed(2)}</td>
+          <td class="py-1.5 text-right">$${(item.qty * item.unitPrice).toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
   }
 
   document.getElementById('printSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
@@ -327,7 +333,7 @@ function createNewProject() {
   document.getElementById('clientName').value = '';
   document.getElementById('clientEmail').value = '';
   document.getElementById('projectName').value = '';
-  lineItems = [{ desc: 'Electrical Service Call', qty: 1, unitPrice: 125, type: 'Labor' }];
+  lineItems = [];
   document.getElementById('projectSelector').value = '';
   renderLineItems();
   updateCalculations();
@@ -341,14 +347,13 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// HARD PRINT OVERRIDE: Hides the on-screen form during window.print()
 function exportPDF() {
   updateCalculations();
   const appContainer = document.getElementById('app-container');
   const printTemplate = document.getElementById('printTemplate');
 
   if (appContainer) appContainer.style.setProperty('display', 'none', 'important');
-  if (printTemplate) printTemplate.style.setProperty('display', 'block', 'important');
+  if (printTemplate) printTemplate.style.setProperty('display', 'flex', 'important');
 
   window.print();
 
