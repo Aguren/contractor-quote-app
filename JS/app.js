@@ -179,21 +179,53 @@ function addSelectedPresetItem() {
     type: opt.getAttribute('data-type') || 'Labor'
   });
 
-  presetSelect.selectedIndex = 0; // Reset dropdown back to default
+  presetSelect.selectedIndex = 0;
   renderLineItems();
   updateCalculations();
 }
 
+// REAL-TIME UPDATER FOR BOTH SCREEN AND PRINT INVOICE PREVIEW
 function updateCalculations() {
   const markup = document.getElementById('markupPct').value;
   const tax = document.getElementById('taxPct').value;
   const totals = Calculator.calculateTotals(lineItems, markup, tax);
 
+  // 1. Update On-Screen Display
   document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
   document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
   document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
   document.getElementById('dispGrandTotal').innerText = `$${totals.grandTotal.toFixed(2)}`;
+
+  // 2. Update Live Print/PDF Template Details Immediately
+  const brand = StorageManager.getBranding();
+  document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
+  document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
+  document.getElementById('printDocType').innerText = `OFFICIAL ${currentDocType.toUpperCase()}`;
+  document.getElementById('printDate').innerText = new Date().toLocaleDateString();
+  document.getElementById('printClientName').innerText = document.getElementById('clientName').value || 'Valued Customer';
+  document.getElementById('printJobScope').innerText = document.getElementById('projectName').value || 'Electrical Work Scope';
+
+  const tbody = document.getElementById('printTableBody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    lineItems.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.className = "border-b border-slate-200";
+      tr.innerHTML = `
+        <td class="py-2">${item.desc}</td>
+        <td class="py-2 text-center">${item.type}</td>
+        <td class="py-2 text-center">${item.qty}</td>
+        <td class="py-2 text-right">$${item.unitPrice.toFixed(2)}</td>
+        <td class="py-2 text-right">$${(item.qty * item.unitPrice).toFixed(2)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.getElementById('printSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
+  document.getElementById('printTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
+  document.getElementById('printGrandTotal').innerText = `$${totals.grandTotal.toFixed(2)}`;
 
   return totals;
 }
@@ -207,12 +239,11 @@ function bindEvents() {
 
   document.getElementById('tradeSelector').addEventListener('change', updateCategoryDropdown);
   document.getElementById('presetCategory').addEventListener('change', populatePresetDropdown);
-  
-  // Adds preset when "Add Selected Preset" button is clicked
   document.getElementById('btnAddPreset').addEventListener('click', addSelectedPresetItem);
-
-  // Automatically adds item as soon as selected from dropdown
   document.getElementById('presetSelector').addEventListener('change', addSelectedPresetItem);
+
+  document.getElementById('clientName').addEventListener('input', updateCalculations);
+  document.getElementById('projectName').addEventListener('input', updateCalculations);
 
   document.getElementById('btnQuote').addEventListener('click', () => setDocumentType('Quote'));
   document.getElementById('btnInvoice').addEventListener('click', () => setDocumentType('Invoice'));
@@ -310,37 +341,21 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
+// HARD PRINT OVERRIDE: Hides the on-screen form during window.print()
 function exportPDF() {
-  const totals = updateCalculations();
-  const brand = StorageManager.getBranding();
+  updateCalculations();
+  const appContainer = document.getElementById('app-container');
+  const printTemplate = document.getElementById('printTemplate');
 
-  document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
-  document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
-  document.getElementById('printDocType').innerText = `OFFICIAL ${currentDocType.toUpperCase()}`;
-  document.getElementById('printDate').innerText = new Date().toLocaleDateString();
-  document.getElementById('printClientName').innerText = document.getElementById('clientName').value || 'Valued Customer';
-  document.getElementById('printJobScope').innerText = document.getElementById('projectName').value || 'Electrical Work Scope';
-
-  const tbody = document.getElementById('printTableBody');
-  tbody.innerHTML = '';
-  lineItems.forEach(item => {
-    const tr = document.createElement('tr');
-    tr.className = "border-b border-slate-200";
-    tr.innerHTML = `
-      <td class="py-2">${item.desc}</td>
-      <td class="py-2 text-center">${item.type}</td>
-      <td class="py-2 text-center">${item.qty}</td>
-      <td class="py-2 text-right">$${item.unitPrice.toFixed(2)}</td>
-      <td class="py-2 text-right">$${(item.qty * item.unitPrice).toFixed(2)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  document.getElementById('printSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
-  document.getElementById('printTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
-  document.getElementById('printGrandTotal').innerText = `$${totals.grandTotal.toFixed(2)}`;
+  if (appContainer) appContainer.style.setProperty('display', 'none', 'important');
+  if (printTemplate) printTemplate.style.setProperty('display', 'block', 'important');
 
   window.print();
+
+  setTimeout(() => {
+    if (appContainer) appContainer.style.removeProperty('display');
+    if (printTemplate) printTemplate.style.removeProperty('display');
+  }, 500);
 }
 
 function sendEmailDoc() {
