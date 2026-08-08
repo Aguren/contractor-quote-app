@@ -197,7 +197,7 @@ function updateCalculations() {
   const totals = Calculator.calculateTotals(lineItems, markup, tax);
   const grandTotalWithTravel = totals.grandTotal + travelFee;
 
-  // 1. Update On-Screen App Controls Display
+  // 1. Update On-Screen Display Controls
   document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
   document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
   document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
@@ -205,7 +205,7 @@ function updateCalculations() {
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
   document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  // 2. Update Live On-Page Document Preview Details Immediately
+  // 2. Update Live On-Page Document Preview Immediately
   const brand = StorageManager.getBranding();
   document.getElementById('printBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
   document.getElementById('printBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
@@ -362,11 +362,25 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// RELIABLE PDF DOWNLOAD FUNCTION (CAPTURES VISIBLE PREVIEW CANVAS DIRECTLY)
+// BULLETPROOF PDF GENERATOR: CLONES LIVE TEMPLATE INTO UNCONSTRAINED OFF-SCREEN CONTAINER
 function downloadPDF() {
   updateCalculations();
-  const element = document.getElementById('printTemplate');
+  const source = document.getElementById('printTemplate');
   const client = document.getElementById('clientName').value || 'Customer';
+
+  // Create temporary container for clean capture
+  const cloneWrapper = document.createElement('div');
+  cloneWrapper.style.position = 'fixed';
+  cloneWrapper.style.left = '0';
+  cloneWrapper.style.top = '0';
+  cloneWrapper.style.width = '750px';
+  cloneWrapper.style.zIndex = '-9999';
+  cloneWrapper.style.background = '#ffffff';
+  cloneWrapper.style.padding = '20px';
+
+  const cloneNode = source.cloneNode(true);
+  cloneWrapper.appendChild(cloneNode);
+  document.body.appendChild(cloneWrapper);
 
   const opt = {
     margin:       [0.3, 0.3, 0.3, 0.3],
@@ -376,7 +390,9 @@ function downloadPDF() {
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
-  html2pdf().set(opt).from(element).save();
+  html2pdf().set(opt).from(cloneNode).save().then(() => {
+    document.body.removeChild(cloneWrapper);
+  });
 }
 
 function sendEmailDoc() {
