@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=19">
+  <link rel="stylesheet" href="css/styles.css?v=20">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -67,10 +67,6 @@
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Name</label>
             <input type="text" id="clientName" placeholder="e.g. Mary Smith" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Mobile Phone (for SMS/WhatsApp)</label>
-            <input type="tel" id="clientPhone" placeholder="(570) 555-0199" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
           </div>
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Email</label>
@@ -172,7 +168,7 @@
         </div>
       </div>
 
-      <!-- GRAND TOTAL & MULTI-CHANNEL SHARING -->
+      <!-- GRAND TOTAL & ACTIONS -->
       <div class="bg-slate-950 p-5 rounded-2xl border-2 border-amber-500/50 shadow-2xl space-y-4">
         <div class="space-y-2 text-sm">
           <div class="flex justify-between text-slate-400">
@@ -213,19 +209,11 @@
           </div>
         </div>
 
-        <div class="space-y-2 pt-2">
-          <div class="grid grid-cols-2 gap-2">
-            <button id="btnSendSMS" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
-              💬 Text SMS
-            </button>
-            <button id="btnSendWhatsApp" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl text-xs shadow flex items-center justify-center gap-1">
-              📱 WhatsApp
-            </button>
-          </div>
-          <button id="btnSendEmail" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-sm shadow-lg flex items-center justify-center gap-2">
-            ✉️ Send via Email
+        <div class="grid grid-cols-1 gap-3 pt-2">
+          <button id="btnSendEmail" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2">
+            ✉️ Send via Email App
           </button>
-          <button id="btnPrintPDF" class="w-full bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
+          <button id="btnPrintPDF" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2">
             📄 Print / Save PDF Document
           </button>
         </div>
