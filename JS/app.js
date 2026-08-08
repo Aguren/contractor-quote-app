@@ -189,6 +189,7 @@ function addSelectedPresetItem() {
 function updateCalculations() {
   const markup = document.getElementById('markupPct').value;
   const tax = document.getElementById('taxPct').value;
+  const depPct = parseFloat(document.getElementById('depositPct').value) || 0;
 
   const miles = parseFloat(document.getElementById('mileageMiles').value) || 0;
   const mileRate = parseFloat(document.getElementById('mileageRate').value) || 0;
@@ -197,7 +198,10 @@ function updateCalculations() {
   const totals = Calculator.calculateTotals(lineItems, markup, tax);
   const grandTotalWithTravel = totals.grandTotal + travelFee;
 
-  // 1. Update On-Screen Display Controls
+  const depositVal = grandTotalWithTravel * (depPct / 100);
+  const balanceVal = grandTotalWithTravel - depositVal;
+
+  // 1. Update On-Screen App Controls
   document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
   document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
   document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
@@ -205,7 +209,10 @@ function updateCalculations() {
   document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
   document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  // 2. Update Document Data in Preview Card
+  document.getElementById('dispDepositVal').innerText = `$${depositVal.toFixed(2)}`;
+  document.getElementById('dispBalanceVal').innerText = `$${balanceVal.toFixed(2)}`;
+
+  // 2. Update Live Document Preview Sheet
   const brand = StorageManager.getBranding();
   document.getElementById('docBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
   document.getElementById('docBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
@@ -240,7 +247,11 @@ function updateCalculations() {
   document.getElementById('docTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
   document.getElementById('docGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
 
-  return { ...totals, travelFee, grandTotalWithTravel };
+  document.getElementById('docDepositLabel').innerText = `${depPct}%`;
+  document.getElementById('docDepositVal').innerText = `$${depositVal.toFixed(2)}`;
+  document.getElementById('docBalanceVal').innerText = `$${balanceVal.toFixed(2)}`;
+
+  return { ...totals, travelFee, grandTotalWithTravel, depositVal, balanceVal };
 }
 
 function bindEvents() {
@@ -278,6 +289,7 @@ function bindEvents() {
 
   document.getElementById('markupPct').addEventListener('input', updateCalculations);
   document.getElementById('taxPct').addEventListener('input', updateCalculations);
+  document.getElementById('depositPct').addEventListener('change', updateCalculations);
 }
 
 function setDocumentType(type) {
@@ -313,6 +325,7 @@ function saveCurrentProject() {
     taxPct: document.getElementById('taxPct').value,
     mileageMiles: document.getElementById('mileageMiles').value,
     mileageRate: document.getElementById('mileageRate').value,
+    depositPct: document.getElementById('depositPct').value,
     lineItems: lineItems
   };
 
@@ -335,6 +348,7 @@ function loadSelectedProject() {
   document.getElementById('taxPct').value = p.taxPct || 6;
   document.getElementById('mileageMiles').value = p.mileageMiles || 0;
   document.getElementById('mileageRate').value = p.mileageRate || 0.67;
+  document.getElementById('depositPct').value = p.depositPct || 50;
 
   lineItems = p.lineItems || [];
   setDocumentType(p.docType || 'Quote');
@@ -362,7 +376,6 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-// ISOLATED POPUP PRINT: OPENS CLEAN WINDOW WITH ONLY THE DOCUMENT CONTENT TO PREVENT APP LEAKAGE
 function printIsolatedDocument() {
   updateCalculations();
   const docHtml = document.getElementById('documentSheet').outerHTML;
@@ -379,7 +392,7 @@ function printIsolatedDocument() {
       <head>
         <title>${currentDocType} - ${document.getElementById('clientName').value || 'Customer'}</title>
         <style>
-          @page { size: portrait; margin: 0.5in; }
+          @page { size: portrait; margin: 0.4in; }
           body { font-family: Arial, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 10px; }
           table { border-collapse: collapse; }
         </style>
@@ -423,6 +436,10 @@ Travel Fee: $${totals.travelFee.toFixed(2)}
 Tax & Overhead: $${(totals.markupVal + totals.taxVal).toFixed(2)}
 ---------------------------
 TOTAL AMOUNT: $${totals.grandTotalWithTravel.toFixed(2)}
+Deposit Due Now: $${totals.depositVal.toFixed(2)}
+Balance Upon Completion: $${totals.balanceVal.toFixed(2)}
+
+Payment Method Accepted: CHECK OR CASH ONLY.
 
 Please reply directly to this email if you have any questions or are ready to approve.
 
