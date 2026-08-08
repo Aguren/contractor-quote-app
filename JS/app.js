@@ -32,15 +32,22 @@ function renderLineItems() {
   }
 
   lineItems.forEach((item, i) => {
+    const isChangeOrder = item.isChangeOrder || false;
     const row = document.createElement('div');
-    row.className = "bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2";
+    row.className = `p-3 rounded-xl border ${isChangeOrder ? 'bg-amber-950/30 border-amber-500/60' : 'bg-slate-900 border-slate-700'} space-y-2`;
     row.innerHTML = `
-      <div class="flex justify-between items-center">
-        <select class="item-type bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs font-bold text-amber-400" data-index="${i}">
-          <option value="Labor" ${item.type==='Labor'?'selected':''}>Labor</option>
-          <option value="Material" ${item.type==='Material'?'selected':''}>Material</option>
-        </select>
-        <button class="btn-remove-item text-red-400 font-bold text-sm px-2" data-index="${i}">✕ Remove</button>
+      <div class="flex justify-between items-center gap-2">
+        <div class="flex items-center gap-2">
+          <select class="item-type bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs font-bold text-amber-400" data-index="${i}">
+            <option value="Labor" ${item.type==='Labor'?'selected':''}>Labor</option>
+            <option value="Material" ${item.type==='Material'?'selected':''}>Material</option>
+          </select>
+          <label class="flex items-center gap-1 text-[11px] font-bold text-amber-400 cursor-pointer">
+            <input type="checkbox" class="item-change-order" data-index="${i}" ${isChangeOrder ? 'checked' : ''}>
+            <span>Change Order</span>
+          </label>
+        </div>
+        <button class="btn-remove-item text-red-400 font-bold text-xs px-1" data-index="${i}">✕ Remove</button>
       </div>
       <input type="text" value="${item.desc}" placeholder="Description" class="item-desc w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white" data-index="${i}">
       <div class="grid grid-cols-2 gap-2 text-xs">
@@ -64,6 +71,14 @@ function attachLineItemListeners() {
   document.querySelectorAll('.item-type').forEach(el => {
     el.addEventListener('change', (e) => {
       lineItems[e.target.dataset.index].type = e.target.value;
+      updateCalculations();
+    });
+  });
+
+  document.querySelectorAll('.item-change-order').forEach(el => {
+    el.addEventListener('change', (e) => {
+      lineItems[e.target.dataset.index].isChangeOrder = e.target.checked;
+      renderLineItems();
       updateCalculations();
     });
   });
@@ -178,7 +193,8 @@ function addSelectedPresetItem() {
     desc: opt.getAttribute('data-desc'),
     qty: parseFloat(opt.getAttribute('data-qty')) || 1,
     unitPrice: parseFloat(opt.getAttribute('data-price')) || 0,
-    type: opt.getAttribute('data-type') || 'Labor'
+    type: opt.getAttribute('data-type') || 'Labor',
+    isChangeOrder: false
   });
 
   presetSelect.selectedIndex = 0;
@@ -201,7 +217,7 @@ function updateCalculations() {
   const depositVal = grandTotalWithTravel * (depPct / 100);
   const balanceVal = grandTotalWithTravel - depositVal;
 
-  // 1. Update On-Screen App Controls
+  // 1. Update On-Screen Display Controls
   document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
   document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
   document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
@@ -230,8 +246,12 @@ function updateCalculations() {
       lineItems.forEach(item => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = "1px solid #cbd5e1";
+        const isCO = item.isChangeOrder;
         tr.innerHTML = `
-          <td style="padding: 6px 2px; text-align: left;">${item.desc}</td>
+          <td style="padding: 6px 2px; text-align: left;">
+            ${item.desc}
+            ${isCO ? '<span style="display:inline-block; font-size: 8px; font-weight: bold; background: #f59e0b; color: #000; padding: 1px 4px; border-radius: 3px; margin-left: 4px;">CHANGE ORDER</span>' : ''}
+          </td>
           <td style="padding: 6px 2px; text-align: center;">${item.type}</td>
           <td style="padding: 6px 2px; text-align: center;">${item.qty}</td>
           <td style="padding: 6px 2px; text-align: right;">$${item.unitPrice.toFixed(2)}</td>
@@ -256,7 +276,7 @@ function updateCalculations() {
 
 function bindEvents() {
   document.getElementById('btnAddLineItem').addEventListener('click', () => {
-    lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material' });
+    lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material', isChangeOrder: false });
     renderLineItems();
     updateCalculations();
   });
@@ -281,6 +301,9 @@ function bindEvents() {
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
   document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
+  document.getElementById('btnSendSMS').addEventListener('click', sendSMSDoc);
+  document.getElementById('btnSendWhatsApp').addEventListener('click', sendWhatsAppDoc);
+
   document.getElementById('btnPrintPDF').addEventListener('click', printIsolatedDocument);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
@@ -290,6 +313,7 @@ function bindEvents() {
   document.getElementById('markupPct').addEventListener('input', updateCalculations);
   document.getElementById('taxPct').addEventListener('input', updateCalculations);
   document.getElementById('depositPct').addEventListener('change', updateCalculations);
+  document.getElementById('projectStatus').addEventListener('change', updateCalculations);
 }
 
 function setDocumentType(type) {
@@ -318,9 +342,11 @@ function saveCurrentProject() {
   projects[currentProjectId] = {
     id: currentProjectId,
     clientName: document.getElementById('clientName').value,
+    clientPhone: document.getElementById('clientPhone').value,
     clientEmail: document.getElementById('clientEmail').value,
     projectName: document.getElementById('projectName').value,
     docType: currentDocType,
+    status: document.getElementById('projectStatus').value,
     markupPct: document.getElementById('markupPct').value,
     taxPct: document.getElementById('taxPct').value,
     mileageMiles: document.getElementById('mileageMiles').value,
@@ -342,8 +368,10 @@ function loadSelectedProject() {
   const p = projects[id];
 
   document.getElementById('clientName').value = p.clientName || '';
+  document.getElementById('clientPhone').value = p.clientPhone || '';
   document.getElementById('clientEmail').value = p.clientEmail || '';
   document.getElementById('projectName').value = p.projectName || '';
+  document.getElementById('projectStatus').value = p.status || 'Draft';
   document.getElementById('markupPct').value = p.markupPct || 15;
   document.getElementById('taxPct').value = p.taxPct || 6;
   document.getElementById('mileageMiles').value = p.mileageMiles || 0;
@@ -359,8 +387,10 @@ function loadSelectedProject() {
 function createNewProject() {
   currentProjectId = null;
   document.getElementById('clientName').value = '';
+  document.getElementById('clientPhone').value = '';
   document.getElementById('clientEmail').value = '';
   document.getElementById('projectName').value = '';
+  document.getElementById('projectStatus').value = 'Draft';
   document.getElementById('mileageMiles').value = 0;
   lineItems = [];
   document.getElementById('projectSelector').value = '';
@@ -412,6 +442,30 @@ function printIsolatedDocument() {
   printWindow.document.close();
 }
 
+function sendSMSDoc() {
+  const brand = StorageManager.getBranding();
+  const clientName = document.getElementById('clientName').value || 'Customer';
+  const phone = document.getElementById('clientPhone').value.replace(/[^0-9]/g, '');
+  const proj = document.getElementById('projectName').value || 'Electrical Work';
+  const totals = updateCalculations();
+
+  const msg = `Hello ${clientName}, here is your ${currentDocType} from ${brand.name || 'Assan Balkov Electrical'} for ${proj}. Total: $${totals.grandTotalWithTravel.toFixed(2)} (Deposit due: $${totals.depositVal.toFixed(2)}). Payment: Check or Cash only. Please reply to confirm!`;
+  
+  window.location.href = `sms:${phone}?body=${encodeURIComponent(msg)}`;
+}
+
+function sendWhatsAppDoc() {
+  const brand = StorageManager.getBranding();
+  const clientName = document.getElementById('clientName').value || 'Customer';
+  const phone = document.getElementById('clientPhone').value.replace(/[^0-9]/g, '');
+  const proj = document.getElementById('projectName').value || 'Electrical Work';
+  const totals = updateCalculations();
+
+  const msg = `Hello ${clientName}, here is your official ${currentDocType} from ${brand.name || 'Assan Balkov Electrical'} for ${proj}.\n\nTotal Due: $${totals.grandTotalWithTravel.toFixed(2)}\nDeposit Due Now: $${totals.depositVal.toFixed(2)}\nBalance Upon Completion: $${totals.balanceVal.toFixed(2)}\n\nPayment Method: CHECK OR CASH ONLY.\n\nPlease reply directly to this message to approve. Thank you!`;
+  
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
 function sendEmailDoc() {
   const brand = StorageManager.getBranding();
   const clientName = document.getElementById('clientName').value || 'Customer';
@@ -421,7 +475,7 @@ function sendEmailDoc() {
 
   let summary = '';
   lineItems.forEach(item => {
-    summary += `• ${item.desc} (${item.qty} x $${item.unitPrice.toFixed(2)}) = $${(item.qty * item.unitPrice).toFixed(2)}\n`;
+    summary += `• ${item.desc} ${item.isChangeOrder ? '[CHANGE ORDER]' : ''} (${item.qty} x $${item.unitPrice.toFixed(2)}) = $${(item.qty * item.unitPrice).toFixed(2)}\n`;
   });
 
   const body = 
