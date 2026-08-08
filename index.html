@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet (with cache buster) -->
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=5">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -141,7 +141,7 @@
         </div>
       </div>
 
-      <!-- TAX & MARKUP -->
+      <!-- TAX & MARKUP (DEFAULT PA SALES TAX 6%) -->
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
         <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">Markup & Tax Rates</h2>
         <div class="grid grid-cols-2 gap-3">
@@ -150,8 +150,8 @@
             <input type="number" id="markupPct" value="15" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Sales Tax %</label>
-            <input type="number" id="taxPct" value="8" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white">
+            <label class="block text-xs font-bold text-slate-400 mb-1">PA Sales Tax %</label>
+            <input type="number" id="taxPct" value="6" step="0.5" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
           </div>
         </div>
       </div>
@@ -176,7 +176,7 @@
             <span id="dispTravel">$0.00</span>
           </div>
           <div class="flex justify-between text-slate-400">
-            <span>Estimated Sales Tax:</span>
+            <span>PA Sales Tax (6%):</span>
             <span id="dispTax">$0.00</span>
           </div>
           <div class="border-t border-slate-800 pt-3 flex justify-between font-black text-2xl text-amber-400">
@@ -244,7 +244,7 @@
         <div class="w-1/2 space-y-1 text-xs border-t-2 border-slate-800 pt-2">
           <div class="flex justify-between text-slate-600"><span>Materials & Labor:</span><span id="printSubtotal">$0.00</span></div>
           <div class="flex justify-between text-slate-600"><span>Travel Fee:</span><span id="printTravelFee">$0.00</span></div>
-          <div class="flex justify-between text-slate-600"><span>Tax & Overhead:</span><span id="printTaxMarkup">$0.00</span></div>
+          <div class="flex justify-between text-slate-600"><span>PA Sales Tax:</span><span id="printTaxMarkup">$0.00</span></div>
           <div class="flex justify-between font-black text-base border-t pt-1 text-slate-900"><span>TOTAL DUE:</span><span id="printGrandTotal">$0.00</span></div>
         </div>
       </div>
