@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initBranding() {
   const brand = StorageManager.getBranding();
-  // Override defaults with Assan's info if empty
   const defaultName = 'Assan Balkov Electrical Contractor';
   const defaultInfo = '(570) 236-6942 • Lic # XXXXXXXX';
 
@@ -97,7 +96,6 @@ function attachLineItemListeners() {
   });
 }
 
-// Category filter populator based on Trade selection
 function updateCategoryDropdown() {
   const trade = document.getElementById('tradeSelector').value;
   const catSelect = document.getElementById('presetCategory');
@@ -148,7 +146,7 @@ function populatePresetDropdown() {
 
   if (!presetSelect || typeof PresetLibrary === 'undefined') return;
 
-  presetSelect.innerHTML = '';
+  presetSelect.innerHTML = '<option value="">-- Choose an Item to Add --</option>';
 
   const filtered = PresetLibrary.filter(item => {
     const matchesTrade = item.trade === trade;
@@ -156,15 +154,34 @@ function populatePresetDropdown() {
     return matchesTrade && matchesCategory;
   });
 
-  filtered.forEach(item => {
+  filtered.forEach((item, idx) => {
     const opt = document.createElement('option');
+    opt.value = idx;
     opt.innerText = `[${item.type}] ${item.desc} - $${item.unitPrice.toFixed(2)}`;
-    opt.dataset.desc = item.desc;
-    opt.dataset.qty = item.qty;
-    opt.dataset.price = item.unitPrice;
-    opt.dataset.type = item.type;
+    opt.setAttribute('data-desc', item.desc);
+    opt.setAttribute('data-qty', item.qty);
+    opt.setAttribute('data-price', item.unitPrice);
+    opt.setAttribute('data-type', item.type);
     presetSelect.appendChild(opt);
   });
+}
+
+function addSelectedPresetItem() {
+  const presetSelect = document.getElementById('presetSelector');
+  const opt = presetSelect.options[presetSelect.selectedIndex];
+  
+  if (!opt || !opt.getAttribute('data-desc')) return;
+
+  lineItems.push({
+    desc: opt.getAttribute('data-desc'),
+    qty: parseFloat(opt.getAttribute('data-qty')) || 1,
+    unitPrice: parseFloat(opt.getAttribute('data-price')) || 0,
+    type: opt.getAttribute('data-type') || 'Labor'
+  });
+
+  presetSelect.selectedIndex = 0; // Reset dropdown back to default
+  renderLineItems();
+  updateCalculations();
 }
 
 function updateCalculations() {
@@ -190,22 +207,12 @@ function bindEvents() {
 
   document.getElementById('tradeSelector').addEventListener('change', updateCategoryDropdown);
   document.getElementById('presetCategory').addEventListener('change', populatePresetDropdown);
+  
+  // Adds preset when "Add Selected Preset" button is clicked
+  document.getElementById('btnAddPreset').addEventListener('click', addSelectedPresetItem);
 
-  document.getElementById('btnAddPreset').addEventListener('click', () => {
-    const presetSelect = document.getElementById('presetSelector');
-    const opt = presetSelect.options[presetSelect.selectedIndex];
-    if (!opt) return;
-
-    lineItems.push({
-      desc: opt.dataset.desc,
-      qty: parseFloat(opt.dataset.qty),
-      unitPrice: parseFloat(opt.dataset.price),
-      type: opt.dataset.type
-    });
-
-    renderLineItems();
-    updateCalculations();
-  });
+  // Automatically adds item as soon as selected from dropdown
+  document.getElementById('presetSelector').addEventListener('change', addSelectedPresetItem);
 
   document.getElementById('btnQuote').addEventListener('click', () => setDocumentType('Quote'));
   document.getElementById('btnInvoice').addEventListener('click', () => setDocumentType('Invoice'));
