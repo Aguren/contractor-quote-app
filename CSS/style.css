@@ -11,21 +11,37 @@ input, select, button {
   justify-content: center; 
 }
 
-/* Hide print layout on normal screen */
+/* Hide the print layout on screen */
+#printTemplate,
 .print-only { 
   display: none !important; 
 }
 
-/* Print Mode overrides */
+/* Strict Print Mode Rules */
 @media print {
-  /* Hide the entire app layout, headers, and modals */
-  header, main, .no-print, #settingsModal { 
+  /* Force hide everything inside the app container */
+  #app-container,
+  header, 
+  main, 
+  nav,
+  footer,
+  .no-print, 
+  #settingsModal { 
     display: none !important; 
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 
-  /* Show ONLY the official print document template */
-  #printTemplate, .print-only { 
+  /* Force show ONLY the clean print template */
+  #printTemplate, 
+  .print-only { 
     display: block !important; 
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
   }
 
   body { 
