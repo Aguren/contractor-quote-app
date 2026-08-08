@@ -281,13 +281,19 @@ function bindEvents() {
     updateCalculations();
   });
 
-  document.getElementById('tradeSelector').addEventListener('change', updateCategoryDropdown);
-  document.getElementById('presetCategory').addEventListener('change', populatePresetDropdown);
+  // Touch and Change bindings for mobile responsiveness
+  const tradeSel = document.getElementById('tradeSelector');
+  const catSel = document.getElementById('presetCategory');
+  
+  tradeSel.addEventListener('change', updateCategoryDropdown);
+  catSel.addEventListener('change', populatePresetDropdown);
+
   document.getElementById('btnAddPreset').addEventListener('click', addSelectedPresetItem);
   document.getElementById('presetSelector').addEventListener('change', addSelectedPresetItem);
 
   document.getElementById('clientName').addEventListener('input', updateCalculations);
   document.getElementById('projectName').addEventListener('input', updateCalculations);
+  document.getElementById('activeJobTitle').addEventListener('input', updateCalculations);
 
   document.getElementById('mileageMiles').addEventListener('input', updateCalculations);
   document.getElementById('mileageRate').addEventListener('input', updateCalculations);
@@ -327,7 +333,8 @@ function refreshProjectSelector() {
     const p = projects[id];
     const opt = document.createElement('option');
     opt.value = id;
-    opt.innerText = `[${p.status || 'Draft'}] ${p.projectName || 'Unnamed Job'}`;
+    const title = p.activeJobTitle || p.projectName || 'Unnamed Job';
+    opt.innerText = `[${p.status || 'Draft'}] ${title}`;
     if (id === currentProjectId) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -338,6 +345,7 @@ function saveCurrentProject() {
 
   projects[currentProjectId] = {
     id: currentProjectId,
+    activeJobTitle: document.getElementById('activeJobTitle').value,
     clientName: document.getElementById('clientName').value,
     clientEmail: document.getElementById('clientEmail').value,
     projectName: document.getElementById('projectName').value,
@@ -363,6 +371,7 @@ function loadSelectedProject() {
   currentProjectId = id;
   const p = projects[id];
 
+  document.getElementById('activeJobTitle').value = p.activeJobTitle || '';
   document.getElementById('clientName').value = p.clientName || '';
   document.getElementById('clientEmail').value = p.clientEmail || '';
   document.getElementById('projectName').value = p.projectName || '';
@@ -381,6 +390,7 @@ function loadSelectedProject() {
 
 function createNewProject() {
   currentProjectId = null;
+  document.getElementById('activeJobTitle').value = '';
   document.getElementById('clientName').value = '';
   document.getElementById('clientEmail').value = '';
   document.getElementById('projectName').value = '';
