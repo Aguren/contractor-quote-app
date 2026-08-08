@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=16">
+  <link rel="stylesheet" href="css/styles.css?v=18">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -141,18 +141,29 @@
         </div>
       </div>
 
-      <!-- TAX & MARKUP -->
+      <!-- TAX, MARKUP & DEPOSIT TERMS -->
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">Markup & Tax Rates</h2>
+        <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">Terms, Markup & Tax Rates</h2>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-400 mb-1">Material Markup %</label>
-            <input type="number" id="markupPct" value="15" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white">
+            <input type="number" id="markupPct" value="15" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-400 mb-1">PA Sales Tax %</label>
             <input type="number" id="taxPct" value="6" step="0.5" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
           </div>
+        </div>
+
+        <!-- Deposit Terms Selector -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Required Job Deposit</label>
+          <select id="depositPct" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
+            <option value="0">No Deposit (100% Due Upon Completion)</option>
+            <option value="25">25% Deposit Required to Schedule</option>
+            <option value="33.33">33% Deposit Required to Schedule</option>
+            <option value="50" selected>50% Deposit Required (Standard Materials)</option>
+          </select>
         </div>
       </div>
 
@@ -179,9 +190,22 @@
             <span>PA Sales Tax (6%):</span>
             <span id="dispTax">$0.00</span>
           </div>
-          <div class="border-t border-slate-800 pt-3 flex justify-between font-black text-2xl text-amber-400">
+          
+          <div class="border-t border-slate-800 pt-2 flex justify-between font-black text-2xl text-amber-400">
             <span>TOTAL DUE:</span>
             <span id="dispGrandTotal">$0.00</span>
+          </div>
+
+          <!-- Deposit & Balance Breakdown -->
+          <div id="depositBreakdownRow" class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 space-y-1 mt-2">
+            <div class="flex justify-between text-xs text-amber-300 font-bold">
+              <span>Deposit Due Now:</span>
+              <span id="dispDepositVal">$0.00</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-400">
+              <span>Balance Due Upon Completion:</span>
+              <span id="dispBalanceVal">$0.00</span>
+            </div>
           </div>
         </div>
 
@@ -195,12 +219,12 @@
         </div>
       </div>
 
-      <!-- LIVE ON-PAGE DOCUMENT PREVIEW SECTION (CLEAN INLINE CARD) -->
+      <!-- LIVE ON-PAGE DOCUMENT PREVIEW SECTION -->
       <div class="pt-4 border-t border-slate-700 space-y-2">
         <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400">📄 Live Document Preview</h2>
         
         <div class="bg-white rounded-xl p-4 sm:p-6 shadow-2xl overflow-hidden text-slate-900 border border-slate-300">
-          <div id="documentSheet" style="width: 100%; box-sizing: border-box; background: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4;">
+          <div id="documentSheet" style="width: 100%; box-sizing: border-box; background: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4;">
             
             <!-- HEADER -->
             <table style="width: 100%; border-bottom: 3px solid #f59e0b; padding-bottom: 8px; margin-bottom: 12px; border-collapse: collapse;">
@@ -224,7 +248,7 @@
             </div>
 
             <!-- ITEMIZED TABLE -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11px;">
               <thead>
                 <tr style="border-bottom: 2px solid #0f172a; text-transform: uppercase; color: #334155; font-weight: bold;">
                   <th style="padding: 4px 2px; text-align: left; width: 50%;">Description</th>
@@ -239,11 +263,11 @@
               </tbody>
             </table>
 
-            <!-- TOTALS BREAKDOWN -->
-            <table style="width: 100%; margin-bottom: 16px; border-collapse: collapse;">
+            <!-- TOTALS & DEPOSIT BREAKDOWN -->
+            <table style="width: 100%; margin-bottom: 14px; border-collapse: collapse;">
               <tr>
-                <td style="width: 45%;"></td>
-                <td style="width: 55%;">
+                <td style="width: 40%;"></td>
+                <td style="width: 60%;">
                   <div style="border-top: 2px solid #0f172a; padding-top: 4px; font-size: 11px;">
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr>
@@ -262,15 +286,43 @@
                         <td style="font-size: 12px; font-weight: 900; color: #0f172a; padding-top: 4px;">TOTAL DUE:</td>
                         <td style="font-size: 12px; font-weight: 900; text-align: right; color: #0f172a; padding-top: 4px;" id="docGrandTotal">$0.00</td>
                       </tr>
+                      <!-- Dynamic Deposit Row -->
+                      <tr id="docDepositRow" style="border-top: 1px dashed #cbd5e1; color: #d97706; font-weight: bold;">
+                        <td style="padding-top: 4px;">Deposit Due Now (<span id="docDepositLabel">50%</span>):</td>
+                        <td style="text-align: right; padding-top: 4px;" id="docDepositVal">$0.00</td>
+                      </tr>
+                      <tr id="docBalanceRow" style="color: #475569; font-weight: bold;">
+                        <td style="padding-top: 2px;">Balance Upon Completion:</td>
+                        <td style="text-align: right; padding-top: 2px;" id="docBalanceVal">$0.00</td>
+                      </tr>
                     </table>
                   </div>
                 </td>
               </tr>
             </table>
 
+            <!-- TERMS & SIGNATURE BLOCK (SPECIFIES CHECK OR CASH ONLY) -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;">
+              <p style="font-size: 9px; font-weight: 700; text-transform: uppercase; margin: 0 0 3px 0; color: #0f172a;">TERMS & WORK AUTHORIZATION</p>
+              <p style="font-size: 8.5px; color: #475569; margin: 0 0 8px 0; line-height: 1.3;">
+                Quote valid for 30 days. All work strictly compliant with National Electrical Code (NEC). Any concealed structural, plumbing, or electrical hazards discovered behind walls during execution may require a written change order prior to proceeding.
+              </p>
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
+                <div style="width: 60%;">
+                  <p style="font-size: 9px; font-weight: 700; color: #334155; margin: 0 0 2px 0;">Accepted & Approved by Customer:</p>
+                  <div style="border-bottom: 1px solid #0f172a; width: 90%; height: 16px;"></div>
+                  <p style="font-size: 8px; color: #64748b; margin: 2px 0 0 0;">Authorized Client Signature & Date</p>
+                </div>
+                <div style="width: 35%; text-align: right;">
+                  <p style="font-size: 9px; font-weight: 800; color: #d97706; margin: 0;">Payment Method:</p>
+                  <p style="font-size: 9px; font-weight: 800; color: #0f172a; margin: 1px 0 0 0;">CHECK OR CASH ONLY</p>
+                </div>
+              </div>
+            </div>
+
             <!-- FOOTER -->
-            <div style="border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 9px; color: #64748b; text-align: center;">
-              Thank you for your business. Assan Balkov Electrical Contractor • All work compliant with NEC codes.
+            <div style="border-top: 1px solid #cbd5e1; padding-top: 6px; font-size: 8.5px; color: #64748b; text-align: center;">
+              Thank you for your business. Assan Balkov Electrical Contractor • Fully Insured
             </div>
 
           </div>
