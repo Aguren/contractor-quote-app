@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Electrical Field Office</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
+
+  <!-- TOP MOBILE HEADER BANNER -->
+  <header class="bg-amber-500 text-slate-950 px-4 py-3 sticky top-0 z-40 shadow-md border-b-4 border-amber-600 no-print">
+    <div class="max-w-md mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">⚡</span>
+        <div>
+          <h1 id="bizNameDisplay" class="font-extrabold text-lg leading-tight">Lightning Electric</h1>
+          <p id="bizInfoDisplay" class="text-xs font-semibold text-slate-900">Lic #C10-984210 • (555) 392-0192</p>
+        </div>
+      </div>
+      <button id="btnOpenSettings" class="bg-slate-900 text-amber-400 font-bold px-3 py-1.5 rounded-lg text-xs shadow">
+        ⚙️ Settings
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto px-4 mt-4 space-y-5">
+
+    <!-- PROJECT MANAGEMENT STRIP -->
+    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2 no-print">
+      <div class="flex justify-between items-center">
+        <label class="text-xs font-bold uppercase text-amber-400">Active Job / Project</label>
+        <span id="activeStatusBadge" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500 text-xs px-2 py-0.5 rounded-full font-bold">Draft</span>
+      </div>
+      <select id="projectSelector" class="w-full bg-slate-900 border-2 border-slate-600 rounded-lg px-3 py-2 font-bold text-white outline-none">
+        <!-- Populated via JS -->
+      </select>
+      <div class="grid grid-cols-3 gap-2 pt-1">
+        <button id="btnNewProject" class="bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs touch-btn">➕ New</button>
+        <button id="btnSaveProject" class="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs touch-btn">💾 Save</button>
+        <button id="btnArchiveProject" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded-lg text-xs touch-btn">📦 Archive</button>
+      </div>
+    </div>
+
+    <!-- DOCUMENT TYPE & CLIENT DETAILS -->
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
+      <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700 no-print">
+        <button id="btnQuote" class="flex-1 font-extrabold rounded-md py-2 text-center bg-amber-500 text-slate-950">Electrical Quote</button>
+        <button id="btnInvoice" class="flex-1 font-extrabold rounded-md py-2 text-center text-slate-400">Final Invoice</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Name</label>
+          <input type="text" id="clientName" placeholder="e.g. John Doe" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Email</label>
+          <input type="email" id="clientEmail" placeholder="john@example.com" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Job Scope / Address</label>
+          <input type="text" id="projectName" placeholder="e.g. 200A Panel Upgrade + EV Charger" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
+        </div>
+      </div>
+    </div>
+
+    <!-- ELECTRICAL QUICK PRESETS -->
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 no-print space-y-3">
+      <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">⚡ Electrical Presets (Tap to Add)</h2>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <button data-preset="200A Main Panel Upgrade,1,1850,Labor" class="preset-btn bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold p-2.5 rounded-lg border border-slate-600 text-left">
+          ⚡ 200A Panel Upgrade ($1,850)
+        </button>
+        <button data-preset="EV Charger 50A Outlet Install,1,650,Labor" class="preset-btn bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold p-2.5 rounded-lg border border-slate-600 text-left">
+          🚗 EV Charger Outlet ($650)
+        </button>
+        <button data-preset="LED Recessed Can Light (Each),4,95,Labor" class="preset-btn bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold p-2.5 rounded-lg border border-slate-600 text-left">
+          💡 Recessed Lights x4 ($380)
+        </button>
+        <button data-preset="12/2 ROMEX Wire (250ft Roll),1,145,Material" class="preset-btn bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold p-2.5 rounded-lg border border-slate-600 text-left">
+          🧵 12/2 Romex Roll ($145)
+        </button>
+      </div>
+    </div>
+
+    <!-- LINE ITEMS SECTION -->
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+        <h2 class="text-base font-extrabold text-white">Itemized Materials & Labor</h2>
+        <button id="btnAddLineItem" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs no-print">
+          + Custom Item
+        </button>
+      </div>
+
+      <div id="itemsContainer" class="space-y-3">
+        <!-- Dynamic Line Items -->
+      </div>
+    </div>
+
+    <!-- TAX & MARKUP -->
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 no-print">
+      <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">Markup & Tax Rates</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Material Markup %</label>
+          <input type="number" id="markupPct" value="15" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Sales Tax %</label>
+          <input type="number" id="taxPct" value="8" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white">
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAND TOTAL & ACTIONS -->
+    <div class="bg-slate-950 p-5 rounded-2xl border-2 border-amber-500/50 shadow-2xl space-y-4">
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between text-slate-400">
+          <span>Materials Total:</span>
+          <span id="dispMat">$0.00</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Markup & Waste:</span>
+          <span id="dispMarkup">$0.00</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Labor Total:</span>
+          <span id="dispLabor">$0.00</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Estimated Sales Tax:</span>
+          <span id="dispTax">$0.00</span>
+        </div>
+        <div class="border-t border-slate-800 pt-3 flex justify-between font-black text-2xl text-amber-400">
+          <span>TOTAL:</span>
+          <span id="dispGrandTotal">$0.00</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 pt-2 no-print">
+        <button id="btnSendEmail" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2">
+          ✉️ Send via Email App
+        </button>
+        <button id="btnExportPDF" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2">
+          📄 Print / Save Official PDF
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- PRINT TEMPLATE -->
+  <div id="printTemplate" class="print-only p-8 text-slate-900 bg-white">
+    <div class="border-b-4 border-amber-500 pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <h1 id="printBizName" class="text-2xl font-black uppercase text-slate-900">Lightning Electric</h1>
+        <p id="printBizInfo" class="text-sm font-semibold text-slate-600">Lic #C10-984210 • (555) 392-0192</p>
+      </div>
+      <div class="text-right">
+        <h2 id="printDocType" class="text-xl font-bold text-amber-600 uppercase">ELECTRICAL QUOTE</h2>
+        <p id="printDate" class="text-xs text-slate-500"></p>
+      </div>
+    </div>
+
+    <div class="bg-slate-100 p-4 rounded-lg mb-6 border border-slate-200">
+      <p class="text-sm font-bold text-slate-700">PREPARED FOR:</p>
+      <p id="printClientName" class="text-base font-bold text-slate-900"></p>
+      <p id="printJobScope" class="text-sm text-slate-800 font-medium"></p>
+    </div>
+
+    <table class="w-full text-left mb-6 border-collapse">
+      <thead>
+        <tr class="border-b-2 border-slate-800 text-xs font-bold uppercase text-slate-700">
+          <th class="py-2">Description</th>
+          <th class="py-2 text-center">Type</th>
+          <th class="py-2 text-center">Qty</th>
+          <th class="py-2 text-right">Unit Price</th>
+          <th class="py-2 text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody id="printTableBody" class="text-sm border-b border-slate-300">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+
+    <div class="flex justify-end">
+      <div class="w-1/2 space-y-1 text-sm border-t-2 border-slate-800 pt-3">
+        <div class="flex justify-between"><span>Materials & Labor:</span><span id="printSubtotal">$0.00</span></div>
+        <div class="flex justify-between"><span>Tax & Overhead:</span><span id="printTaxMarkup">$0.00</span></div>
+        <div class="flex justify-between font-black text-lg border-t pt-2 text-slate-900"><span>TOTAL DUE:</span><span id="printGrandTotal">$0.00</span></div>
+      </div>
+    </div>
+
+    <div class="mt-12 border-t pt-4 text-xs text-slate-500 text-center">
+      Thank you for choosing Lightning Electric. All electrical work performed according to local & NEC codes.
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 no-print">
+    <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold text-amber-400 border-b border-slate-700 pb-2">Edit Electrician Branding</h3>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 mb-1">Company Name</label>
+        <input type="text" id="editBizName" class="w-full bg-slate-900 border rounded p-2 text-white">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 mb-1">License & Phone</label>
+        <input type="text" id="editBizInfo" class="w-full bg-slate-900 border rounded p-2 text-white">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btnCancelSettings" class="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg text-xs">Cancel</button>
+        <button id="btnSaveSettings" class="px-4 py-2 bg-amber-500 text-slate-950 font-extrabold rounded-lg text-xs">Save Branding</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script dependencies loaded in order -->
+  <script src="js/storage.js"></script>
+  <script src="js/calculators.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

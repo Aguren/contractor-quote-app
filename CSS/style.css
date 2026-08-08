@@ -1,0 +1,35 @@
+input, select, button { 
+  font-size: 16px !important; 
+  min-height: 52px; 
+  touch-action: manipulation; 
+}
+
+.touch-btn { 
+  min-height: 52px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+@media print {
+  body { 
+    background: #fff !important; 
+    color: #000 !important; 
+    padding: 0 !important; 
+  }
+  .no-print { 
+    display: none !important; 
+  }
+  .print-only { 
+    display: block !important; 
+  }
+  .print-card { 
+    border: none !important; 
+    box-shadow: none !important; 
+    padding: 0 !important; 
+  }
+}
+
+.print-only { 
+  display: none; 
+}
