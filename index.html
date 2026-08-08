@@ -7,12 +7,9 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- html2pdf.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=13">
+  <link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -192,8 +189,8 @@
           <button id="btnSendEmail" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2">
             ✉️ Send via Email App
           </button>
-          <button id="btnDownloadPDF" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2">
-            📄 Save / Download Official PDF
+          <button id="btnPrintPDF" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2">
+            📄 Print / Save PDF Document
           </button>
         </div>
       </div>
@@ -202,7 +199,6 @@
       <div class="pt-4 border-t border-slate-700 space-y-2">
         <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400">📄 Live Document Preview</h2>
         
-        <!-- FULL-WIDTH LIVE PREVIEW CARD (NO INNER SCROLLBOX) -->
         <div class="bg-white text-slate-900 p-4 sm:p-8 rounded-xl shadow-2xl border border-slate-300">
           <div id="printTemplate" style="width: 100%; box-sizing: border-box; background: #ffffff; color: #000000; font-family: Arial, sans-serif;">
             
