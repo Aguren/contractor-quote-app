@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=21">
+  <link rel="stylesheet" href="css/styles.css?v=22">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -91,7 +91,7 @@
         </div>
       </div>
 
-      <!-- MOBILE-OPTIMIZED PRESET LIBRARY -->
+      <!-- PRESET LIBRARY -->
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
         <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">⚡ Master Trade Preset Library</h2>
         
@@ -222,10 +222,11 @@
         </div>
 
         <div class="grid grid-cols-1 gap-3 pt-2">
-          <button id="btnSendEmail" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2">
+          <!-- Direct Mobile Touch Trigger Links -->
+          <a id="btnSendEmail" href="#" target="_self" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2 touch-btn">
             ✉️ Send via Email App
-          </button>
-          <button id="btnPrintPDF" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2">
+          </a>
+          <button id="btnPrintPDF" type="button" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2 touch-btn">
             📄 Print / Save PDF Document
           </button>
         </div>
@@ -362,6 +363,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Hidden Mobile Print Frame -->
+  <iframe id="mobilePrintFrame" style="position: absolute; width: 0; height: 0; border: none;"></iframe>
 
   <!-- Script dependencies loaded in order -->
   <script src="js/storage.js"></script>
