@@ -13,21 +13,48 @@ input, select, button {
 
 /* Hide print layout on normal browser screen */
 #printTemplate { 
-  display: none; 
+  display: none !important; 
 }
 
-/* Print Mode overrides */
+/* Force Portrait Page Setup */
+@page {
+  size: portrait;
+  margin: 10mm;
+}
+
+/* Print Mode Overrides */
 @media print {
+  /* Hide all app screen elements */
   #app-container, header, main, nav, footer, #settingsModal { 
     display: none !important; 
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 
+  /* Force display of PDF invoice template in portrait */
   #printTemplate { 
-    display: block !important; 
+    display: flex !important; 
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    visibility: visible !important;
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    min-height: 96vh !important; /* Locks full page height */
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Compact spacing to ensure single-page fit */
+  #printTemplate table {
+    font-size: 12px !important;
+  }
+  #printTemplate td, #printTemplate th {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
   }
 
   body { 
@@ -35,5 +62,6 @@ input, select, button {
     color: #000000 !important; 
     padding: 0 !important; 
     margin: 0 !important;
+    font-size: 13px !important;
   }
 }
