@@ -11,15 +11,15 @@ input, select, button {
   justify-content: center; 
 }
 
-/* Hide the print layout on screen */
+/* Hide print layout on normal browser display */
 #printTemplate,
 .print-only { 
   display: none !important; 
 }
 
-/* Strict Print Mode Rules */
+/* Print Mode Rules */
 @media print {
-  /* Force hide everything inside the app container */
+  /* Hide all app screen elements */
   #app-container,
   header, 
   main, 
@@ -33,7 +33,7 @@ input, select, button {
     overflow: hidden !important;
   }
 
-  /* Force show ONLY the clean print template */
+  /* Force display of PDF invoice template */
   #printTemplate, 
   .print-only { 
     display: block !important; 
