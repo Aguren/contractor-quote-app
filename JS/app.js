@@ -271,7 +271,48 @@ function updateCalculations() {
   document.getElementById('docDepositVal').innerText = `$${depositVal.toFixed(2)}`;
   document.getElementById('docBalanceVal').innerText = `$${balanceVal.toFixed(2)}`;
 
+  // 3. Dynamically update email button mailto link
+  updateEmailLink(brand, totals, grandTotalWithTravel, depositVal, balanceVal);
+
   return { ...totals, travelFee, grandTotalWithTravel, depositVal, balanceVal };
+}
+
+function updateEmailLink(brand, totals, grandTotal, depositVal, balanceVal) {
+  const clientName = document.getElementById('clientName').value || 'Customer';
+  const clientEmail = document.getElementById('clientEmail').value || '';
+  const proj = document.getElementById('projectName').value || 'Electrical Work';
+
+  let summary = '';
+  lineItems.forEach(item => {
+    summary += `• ${item.desc} ${item.isChangeOrder ? '[CHANGE ORDER]' : ''} (${item.qty} x $${item.unitPrice.toFixed(2)}) = $${(item.qty * item.unitPrice).toFixed(2)}\n`;
+  });
+
+  const body = 
+`Hello ${clientName},
+
+Below are the project details and estimate breakdown for: ${proj}.
+
+--- ITEMIZED BREAKDOWN ---
+${summary}
+Subtotal: $${(totals.matSub + totals.laborSub).toFixed(2)}
+Travel Fee: $${totals.travelFee.toFixed(2)}
+Tax & Overhead: $${(totals.markupVal + totals.taxVal).toFixed(2)}
+---------------------------
+TOTAL AMOUNT: $${grandTotal.toFixed(2)}
+Deposit Due Now: $${depositVal.toFixed(2)}
+Balance Upon Completion: $${balanceVal.toFixed(2)}
+
+Payment Method Accepted: CHECK OR CASH ONLY.
+
+Please reply directly to this email if you have any questions or are ready to approve.
+
+Best regards,
+${brand.name || 'Assan Balkov Electrical Contractor'}
+${brand.info || '(570) 236-6942'}`;
+
+  const mailto = `mailto:${clientEmail}?subject=${encodeURIComponent('Official ' + currentDocType + ': ' + proj)}&body=${encodeURIComponent(body)}`;
+  const btn = document.getElementById('btnSendEmail');
+  if (btn) btn.setAttribute('href', mailto);
 }
 
 function bindEvents() {
@@ -281,17 +322,13 @@ function bindEvents() {
     updateCalculations();
   });
 
-  // Touch and Change bindings for mobile responsiveness
-  const tradeSel = document.getElementById('tradeSelector');
-  const catSel = document.getElementById('presetCategory');
-  
-  tradeSel.addEventListener('change', updateCategoryDropdown);
-  catSel.addEventListener('change', populatePresetDropdown);
-
+  document.getElementById('tradeSelector').addEventListener('change', updateCategoryDropdown);
+  document.getElementById('presetCategory').addEventListener('change', populatePresetDropdown);
   document.getElementById('btnAddPreset').addEventListener('click', addSelectedPresetItem);
   document.getElementById('presetSelector').addEventListener('change', addSelectedPresetItem);
 
   document.getElementById('clientName').addEventListener('input', updateCalculations);
+  document.getElementById('clientEmail').addEventListener('input', updateCalculations);
   document.getElementById('projectName').addEventListener('input', updateCalculations);
   document.getElementById('activeJobTitle').addEventListener('input', updateCalculations);
 
@@ -306,8 +343,7 @@ function bindEvents() {
   document.getElementById('btnArchiveProject').addEventListener('click', archiveCurrentProject);
   document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
 
-  document.getElementById('btnSendEmail').addEventListener('click', sendEmailDoc);
-  document.getElementById('btnPrintPDF').addEventListener('click', printIsolatedDocument);
+  document.getElementById('btnPrintPDF').addEventListener('click', printMobileDocument);
 
   document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
   document.getElementById('btnCancelSettings').addEventListener('click', toggleSettingsModal);
@@ -410,17 +446,18 @@ function archiveCurrentProject() {
   refreshProjectSelector();
 }
 
-function printIsolatedDocument() {
+// RELIABLE MOBILE & DESKTOP PRINT / PDF VIA HIDDEN IFRAME (NO POPUP BLOCKING)
+function printMobileDocument() {
   updateCalculations();
   const docHtml = document.getElementById('documentSheet').outerHTML;
+  const iframe = document.getElementById('mobilePrintFrame');
 
-  const printWindow = window.open('', '_blank', 'width=800,height=1000');
-  if (!printWindow) {
-    alert('Please allow popups for this app to print/save your document.');
-    return;
-  }
+  if (!iframe) return;
 
-  printWindow.document.write(`
+  const frameDoc = iframe.contentWindow || iframe.contentDocument.document || iframe.contentDocument;
+  
+  frameDoc.document.open();
+  frameDoc.document.write(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -433,56 +470,15 @@ function printIsolatedDocument() {
       </head>
       <body>
         ${docHtml}
-        <script>
-          window.onload = function() {
-            window.print();
-            window.onafterprint = function() { window.close(); };
-          };
-        </script>
       </body>
     </html>
   `);
+  frameDoc.document.close();
 
-  printWindow.document.close();
-}
-
-function sendEmailDoc() {
-  const brand = StorageManager.getBranding();
-  const clientName = document.getElementById('clientName').value || 'Customer';
-  const clientEmail = document.getElementById('clientEmail').value;
-  const proj = document.getElementById('projectName').value || 'Electrical Work';
-  const totals = updateCalculations();
-
-  let summary = '';
-  lineItems.forEach(item => {
-    summary += `• ${item.desc} ${item.isChangeOrder ? '[CHANGE ORDER]' : ''} (${item.qty} x $${item.unitPrice.toFixed(2)}) = $${(item.qty * item.unitPrice).toFixed(2)}\n`;
-  });
-
-  const body = 
-`Hello ${clientName},
-
-Below are the project details and estimate breakdown for: ${proj}.
-
---- ITEMIZED BREAKDOWN ---
-${summary}
-Subtotal: $${(totals.matSub + totals.laborSub).toFixed(2)}
-Travel Fee: $${totals.travelFee.toFixed(2)}
-Tax & Overhead: $${(totals.markupVal + totals.taxVal).toFixed(2)}
----------------------------
-TOTAL AMOUNT: $${totals.grandTotalWithTravel.toFixed(2)}
-Deposit Due Now: $${totals.depositVal.toFixed(2)}
-Balance Upon Completion: $${totals.balanceVal.toFixed(2)}
-
-Payment Method Accepted: CHECK OR CASH ONLY.
-
-Please reply directly to this email if you have any questions or are ready to approve.
-
-Best regards,
-${brand.name || 'Assan Balkov Electrical Contractor'}
-${brand.info || '(570) 236-6942'}`;
-
-  const mailto = `mailto:${clientEmail}?subject=${encodeURIComponent('Official ' + currentDocType + ': ' + proj)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailto;
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 300);
 }
 
 function toggleSettingsModal() {
