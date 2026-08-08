@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet (with cache buster) -->
-  <link rel="stylesheet" href="css/styles.css?v=6">
+  <link rel="stylesheet" href="css/styles.css?v=7">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -199,56 +199,75 @@
 
   </div> <!-- END OF #app-container -->
 
-  <!-- PRINT TEMPLATE (PORTRAIT, SINGLE-PAGE OPTIMIZED) -->
-  <div id="printTemplate" class="print-only text-slate-900 bg-white">
+  <!-- PRINT TEMPLATE (USES INLINE CSS FOR STRICT PORTRAIT LAYOUT) -->
+  <div id="printTemplate" style="width: 100%; max-width: 8in; margin: 0 auto; color: #000; background: #fff; font-family: Arial, sans-serif;">
     
     <!-- HEADER -->
-    <div class="border-b-4 border-amber-500 pb-2 mb-4 flex justify-between items-start">
-      <div>
-        <h1 id="printBizName" class="text-lg font-black uppercase text-slate-900 leading-tight">Assan Balkov Electrical Contractor</h1>
-        <p id="printBizInfo" class="text-xs font-semibold text-slate-600">(570) 236-6942 • Lic # XXXXXXXX</p>
-      </div>
-      <div class="text-right">
-        <h2 id="printDocType" class="text-base font-bold text-amber-600 uppercase">OFFICIAL QUOTE</h2>
-        <p id="printDate" class="text-xs text-slate-500"></p>
-      </div>
-    </div>
+    <table style="width: 100%; border-bottom: 4px solid #f59e0b; padding-bottom: 8px; margin-bottom: 16px;">
+      <tr>
+        <td style="vertical-align: top;">
+          <h1 id="printBizName" style="font-size: 18px; font-weight: 900; text-transform: uppercase; margin: 0; color: #0f172a;">Assan Balkov Electrical Contractor</h1>
+          <p id="printBizInfo" style="font-size: 11px; font-weight: 600; margin: 4px 0 0 0; color: #475569;">(570) 236-6942 • Lic # XXXXXXXX</p>
+        </td>
+        <td style="vertical-align: top; text-align: right;">
+          <h2 id="printDocType" style="font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 0; color: #d97706;">OFFICIAL QUOTE</h2>
+          <p id="printDate" style="font-size: 11px; margin: 4px 0 0 0; color: #64748b;"></p>
+        </td>
+      </tr>
+    </table>
 
-    <!-- PREPARED FOR CARD -->
-    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 mb-4">
-      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">PREPARED FOR:</p>
-      <p id="printClientName" class="text-sm font-bold text-slate-900"></p>
-      <p id="printJobScope" class="text-xs text-slate-700 font-medium"></p>
+    <!-- PREPARED FOR BOX -->
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-bottom: 16px;">
+      <p style="font-size: 10px; font-weight: 700; text-transform: uppercase; margin: 0 0 4px 0; color: #64748b;">PREPARED FOR:</p>
+      <p id="printClientName" style="font-size: 14px; font-weight: 700; margin: 0; color: #0f172a;"></p>
+      <p id="printJobScope" style="font-size: 12px; font-weight: 500; margin: 2px 0 0 0; color: #334155;"></p>
     </div>
 
     <!-- ITEMIZED TABLE -->
-    <table class="w-full text-left border-collapse text-xs mb-4">
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
       <thead>
-        <tr class="border-b-2 border-slate-800 font-bold uppercase text-slate-700">
-          <th class="py-1 w-[50%]">Description</th>
-          <th class="py-1 text-center w-[12%]">Type</th>
-          <th class="py-1 text-center w-[10%]">Qty</th>
-          <th class="py-1 text-right w-[14%]">Unit Price</th>
-          <th class="py-1 text-right w-[14%]">Total</th>
+        <tr style="border-bottom: 2px solid #0f172a; text-transform: uppercase; color: #334155;">
+          <th style="padding: 6px 4px; text-align: left; width: 50%;">Description</th>
+          <th style="padding: 6px 4px; text-align: center; width: 12%;">Type</th>
+          <th style="padding: 6px 4px; text-align: center; width: 10%;">Qty</th>
+          <th style="padding: 6px 4px; text-align: right; width: 14%;">Unit Price</th>
+          <th style="padding: 6px 4px; text-align: right; width: 14%;">Total</th>
         </tr>
       </thead>
-      <tbody id="printTableBody" class="border-b border-slate-300">
+      <tbody id="printTableBody" style="border-bottom: 1px solid #cbd5e1;">
         <!-- Rendered dynamically -->
       </tbody>
     </table>
 
     <!-- TOTALS BREAKDOWN -->
-    <div class="flex justify-end mb-8">
-      <div class="w-1/2 space-y-1 text-xs border-t-2 border-slate-800 pt-2">
-        <div class="flex justify-between text-slate-600"><span>Materials & Labor:</span><span id="printSubtotal">$0.00</span></div>
-        <div class="flex justify-between text-slate-600"><span>Travel Fee:</span><span id="printTravelFee">$0.00</span></div>
-        <div class="flex justify-between text-slate-600"><span>PA Sales Tax:</span><span id="printTaxMarkup">$0.00</span></div>
-        <div class="flex justify-between font-black text-sm border-t pt-1 text-slate-900"><span>TOTAL DUE:</span><span id="printGrandTotal">$0.00</span></div>
-      </div>
-    </div>
+    <table style="width: 100%; margin-bottom: 30px;">
+      <tr>
+        <td style="width: 50%;"></td>
+        <td style="width: 50%;">
+          <div style="border-top: 2px solid #0f172a; padding-top: 6px; font-size: 11px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569;">
+              <span>Materials & Labor:</span>
+              <span id="printSubtotal">$0.00</span>
+            </div>
+            <div style="display: flex; justify-between; margin-bottom: 4px; color: #475569;">
+              <span>Travel Fee:</span>
+              <span id="printTravelFee">$0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #475569;">
+              <span>PA Sales Tax:</span>
+              <span id="printTaxMarkup">$0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-top: 1px solid #0f172a; padding-top: 6px; font-size: 14px; font-weight: 900; color: #0f172a;">
+              <span>TOTAL DUE:</span>
+              <span id="printGrandTotal">$0.00</span>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
 
-    <!-- SINGLE-PAGE FOOTER -->
-    <div class="border-t border-slate-300 pt-2 text-[10px] text-slate-500 text-center">
+    <!-- FOOTER -->
+    <div style="border-top: 1px solid #cbd5e1; padding-top: 10px; font-size: 10px; color: #64748b; text-align: center;">
       Thank you for your business. Assan Balkov Electrical Contractor • All work compliant with NEC codes.
     </div>
 
