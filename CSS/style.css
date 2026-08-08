@@ -11,12 +11,12 @@ input, select, button {
   justify-content: center; 
 }
 
-/* Hide print layout on normal browser screen */
+/* Hide print template on screen */
 #printTemplate { 
   display: none !important; 
 }
 
-/* Page Setup for Portrait */
+/* Strict Portrait Page Setup */
 @page {
   size: portrait;
   margin: 0.4in;
@@ -24,31 +24,150 @@ input, select, button {
 
 /* Print Overrides */
 @media print {
-  /* Hide all on-screen app elements during print */
+  /* Hide all on-screen app controls */
   #app-container, header, main, nav, footer, #settingsModal, .no-print { 
     display: none !important; 
     visibility: hidden !important;
     height: 0 !important;
+    max-height: 0 !important;
     overflow: hidden !important;
   }
 
-  /* Force display of the document template in full-width block mode */
-  #printTemplate { 
-    display: block !important; 
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-  }
-
+  /* Reset body styling for print */
   body { 
     background: #ffffff !important; 
     color: #000000 !important; 
     padding: 0 !important; 
     margin: 0 !important;
+    width: 100% !important;
+    font-family: Arial, sans-serif !important;
+  }
+
+  /* Strict block layout override for PDF preview */
+  #printTemplate { 
+    display: block !important; 
+    visibility: visible !important;
+    position: relative !important;
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Component Specific Print Classes */
+  .print-header-table {
+    width: 100% !important;
+    border-bottom: 4px solid #f59e0b !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
+    border-collapse: collapse !important;
+    display: table !important;
+  }
+
+  .print-biz-title {
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    color: #0f172a !important;
+  }
+
+  .print-biz-sub {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin: 4px 0 0 0 !important;
+    color: #475569 !important;
+  }
+
+  .print-doc-title {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    color: #d97706 !important;
+  }
+
+  .print-doc-date {
+    font-size: 11px !important;
+    margin: 4px 0 0 0 !important;
+    color: #64748b !important;
+  }
+
+  .print-client-box {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 12px !important;
+    display: block !important;
+  }
+
+  .print-label {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    margin: 0 0 2px 0 !important;
+    color: #64748b !important;
+  }
+
+  .print-client-name {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    color: #0f172a !important;
+  }
+
+  .print-job-scope {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    margin: 2px 0 0 0 !important;
+    color: #334155 !important;
+  }
+
+  .print-items-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 16px !important;
+    font-size: 11px !important;
+    display: table !important;
+  }
+
+  .print-items-table th {
+    padding: 6px 4px !important;
+    border-bottom: 2px solid #0f172a !important;
+    text-transform: uppercase !important;
+    color: #334155 !important;
+    font-weight: bold !important;
+  }
+
+  .print-items-table td {
+    padding: 6px 4px !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+  }
+
+  .print-totals-table {
+    width: 100% !important;
+    margin-bottom: 16px !important;
+    border-collapse: collapse !important;
+    display: table !important;
+  }
+
+  .print-totals-box {
+    border-top: 2px solid #0f172a !important;
+    padding-top: 6px !important;
+    font-size: 11px !important;
+  }
+
+  .print-footer {
+    border-top: 1px solid #cbd5e1 !important;
+    padding-top: 8px !important;
+    font-size: 10px !important;
+    color: #64748b !important;
+    text-align: center !important;
+    display: block !important;
   }
 }
