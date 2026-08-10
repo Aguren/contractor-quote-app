@@ -3,7 +3,7 @@ let currentProjectId = null;
 let projects = StorageManager.getProjects();
 let lineItems = [];
 
-// Safely get presets array
+// Safely obtain preset library from global window scope
 function getPresetLibrary() {
   return window.PresetLibrary || (typeof PresetLibrary !== 'undefined' ? PresetLibrary : []);
 }
@@ -232,7 +232,7 @@ function updateCalculations() {
   const depositVal = grandTotalWithTravel * (depPct / 100);
   const balanceVal = grandTotalWithTravel - depositVal;
 
-  // 1. Update Controls
+  // 1. Update Display Controls
   const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
   setTxt('dispMat', `$${totals.matSub.toFixed(2)}`);
   setTxt('dispMarkup', `$${totals.markupVal.toFixed(2)}`);
@@ -243,7 +243,7 @@ function updateCalculations() {
   setTxt('dispDepositVal', `$${depositVal.toFixed(2)}`);
   setTxt('dispBalanceVal', `$${balanceVal.toFixed(2)}`);
 
-  // 2. Update Document
+  // 2. Update Live Document
   const brand = StorageManager.getBranding();
   setTxt('docBizName', brand.name || 'Assan Balkov Electrical Contractor');
   setTxt('docBizInfo', brand.info || '(570) 236-6942 • Lic # XXXXXXXX');
