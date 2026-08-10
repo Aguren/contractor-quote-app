@@ -1,21 +1,44 @@
-const StorageManager = {
-  getProjects() {
-    return JSON.parse(localStorage.getItem('elec_projects') || '{}');
+// Storage Manager Module for Local Project and Branding Persistence
+window.StorageManager = {
+  getProjects: function() {
+    try {
+      const data = localStorage.getItem('assan_projects');
+      return data ? JSON.parse(data) : {};
+    } catch(e) {
+      console.error('Error reading projects from storage:', e);
+      return {};
+    }
   },
 
-  saveProjects(projects) {
-    localStorage.setItem('elec_projects', JSON.stringify(projects));
+  saveProjects: function(projects) {
+    try {
+      localStorage.setItem('assan_projects', JSON.stringify(projects || {}));
+    } catch(e) {
+      console.error('Error saving projects to storage:', e);
+    }
   },
 
-  getBranding() {
-    return {
-      name: localStorage.getItem('elec_biz_name') || 'Lightning Electric Services',
-      info: localStorage.getItem('elec_biz_info') || 'Lic #C10-984210 • (555) 392-0192 • Fully Insured'
-    };
+  getBranding: function() {
+    try {
+      const data = localStorage.getItem('assan_branding');
+      return data ? JSON.parse(data) : {
+        name: 'Assan Balkov Electrical Contractor',
+        info: '(570) 236-6942 • Lic # XXXXXXXX'
+      };
+    } catch(e) {
+      console.error('Error reading branding from storage:', e);
+      return {
+        name: 'Assan Balkov Electrical Contractor',
+        info: '(570) 236-6942 • Lic # XXXXXXXX'
+      };
+    }
   },
 
-  saveBranding(name, info) {
-    localStorage.setItem('elec_biz_name', name);
-    localStorage.setItem('elec_biz_info', info);
+  saveBranding: function(name, info) {
+    try {
+      localStorage.setItem('assan_branding', JSON.stringify({ name, info }));
+    } catch(e) {
+      console.error('Error saving branding to storage:', e);
+    }
   }
 };
