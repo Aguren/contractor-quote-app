@@ -5,19 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Assan Balkov Electrical Contractor</title>
   
-  <!-- MOBILE ERROR DIAGNOSTIC CATCHER -->
-  <script>
-    window.onerror = function(msg, url, line, col, error) {
-      alert("⚠️ JS ERROR DETECTED ON LIVE HOST:\n\nMessage: " + msg + "\nFile: " + url + "\nLine: " + line);
-      return false;
-    };
-  </script>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS CDN (Fixed with crossorigin tag) -->
+  <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=100">
+  <link rel="stylesheet" href="css/styles.css?v=200">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -115,14 +107,14 @@
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">2. Filter Sub-Category</label>
             <select id="presetCategory" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-sm text-white font-bold outline-none">
-              <!-- Dynamically populated via JS -->
+              <!-- Dynamically populated -->
             </select>
           </div>
 
           <div>
             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">3. Select Specific Job Preset</label>
             <select id="presetSelector" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-sm text-white font-bold outline-none">
-              <!-- Dynamically populated via JS -->
+              <!-- Dynamically populated -->
             </select>
           </div>
 
@@ -228,7 +220,6 @@
         </div>
 
         <div class="grid grid-cols-1 gap-3 pt-2">
-          <!-- DIRECT TOUCH MAILTO LINK -->
           <a id="btnSendEmail" href="mailto:" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2 touch-btn">
             ✉️ Send via Email App
           </a>
@@ -370,10 +361,10 @@
     </div>
   </div>
 
-  <!-- Script dependencies loaded with strict version query tags -->
-  <script src="js/storage.js?v=101"></script>
-  <script src="js/calculators.js?v=101"></script>
-  <script src="js/presets.js?v=101"></script>
-  <script src="js/app.js?v=101"></script>
+  <!-- Script dependencies loaded with version tags -->
+  <script src="js/storage.js?v=200"></script>
+  <script src="js/calculators.js?v=200"></script>
+  <script src="js/presets.js?v=200"></script>
+  <script src="js/app.js?v=200"></script>
 </body>
 </html>
