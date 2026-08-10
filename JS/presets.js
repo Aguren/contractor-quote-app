@@ -1,7 +1,7 @@
 // Master Contractor Preset Library
 // Real-world average residential pricing (Labor & Material breakdown)
 
-const PresetLibrary = [
+window.PresetLibrary = [
   // ==========================================
   // SECTION 1: ELECTRICAL (TOP 100 RESIDENTIAL JOBS)
   // ==========================================
