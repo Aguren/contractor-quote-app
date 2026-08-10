@@ -5,40 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Assan Balkov Electrical Contractor</title>
   
-  <!-- Tailwind CSS CDN (Fixed with crossorigin tag) -->
-  <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FALLBACK STANDALONE STYLES IN CASE CDN IS BLOCKED OR OFFLINE -->
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding-bottom: 96px;
+    }
+    .card-block {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .input-field {
+      width: 100%;
+      background-color: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      color: #ffffff;
+      font-weight: bold;
+      box-sizing: border-box;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+    .btn-gold {
+      background-color: #f59e0b;
+      color: #020617;
+      font-weight: 900;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+      box-sizing: border-box;
+    }
+    .btn-dark {
+      background-color: #1e293b;
+      border: 2px solid #f59e0b;
+      color: #fbbf24;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      text-align: center;
+      display: block;
+      box-sizing: border-box;
+    }
+  </style>
   
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=200">
+  <link rel="stylesheet" href="css/styles.css?v=300">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
   <!-- ON-SCREEN APP CONTAINER -->
   <div id="app-container">
 
-    <!-- TOP MOBILE HEADER BANNER WITH ASSAN'S BRANDING -->
-    <header class="bg-amber-500 text-slate-950 px-4 py-3 sticky top-0 z-40 shadow-md border-b-4 border-amber-600">
-      <div class="max-w-md mx-auto flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">⚡</span>
+    <!-- TOP HEADER BANNER -->
+    <header class="bg-amber-500 text-slate-950 px-4 py-3 sticky top-0 z-40 shadow-md border-b-4 border-amber-600" style="background-color: #f59e0b; color: #020617; padding: 12px 16px; position: sticky; top: 0; z-index: 40; border-bottom: 4px solid #d97706;">
+      <div class="max-w-md mx-auto flex justify-between items-center" style="max-width: 448px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div class="flex items-center gap-2" style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 24px;">⚡</span>
           <div>
-            <h1 id="bizNameDisplay" class="font-extrabold text-base leading-tight">Assan Balkov Electrical Contractor</h1>
-            <p id="bizInfoDisplay" class="text-xs font-semibold text-slate-900">(570) 236-6942 • Lic # XXXXXXXX</p>
+            <h1 id="bizNameDisplay" class="font-extrabold text-base leading-tight" style="margin: 0; font-size: 16px; font-weight: 800;">Assan Balkov Electrical Contractor</h1>
+            <p id="bizInfoDisplay" class="text-xs font-semibold text-slate-900" style="margin: 2px 0 0 0; font-size: 12px; font-weight: 600;">(570) 236-6942 • Lic # XXXXXXXX</p>
           </div>
         </div>
-        <button id="btnOpenSettings" type="button" class="bg-slate-900 text-amber-400 font-bold px-2.5 py-1.5 rounded-lg text-xs shadow shrink-0">
+        <button id="btnOpenSettings" type="button" class="bg-slate-900 text-amber-400 font-bold px-2.5 py-1.5 rounded-lg text-xs shadow shrink-0" style="background-color: #0f172a; color: #fbbf24; border: none; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 12px;">
           ⚙️ Edit
         </button>
       </div>
     </header>
 
-    <main class="max-w-md mx-auto px-4 mt-4 space-y-5">
+    <main class="max-w-md mx-auto px-4 mt-4 space-y-5" style="max-width: 448px; margin: 16px auto; padding: 0 16px;">
 
       <!-- PROJECT MANAGEMENT STRIP -->
-      <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-3">
-        <div class="flex justify-between items-center gap-2">
-          <label class="text-xs font-bold uppercase text-amber-400">Active Job / Project</label>
-          <select id="projectStatus" class="bg-slate-900 border border-slate-600 text-xs font-bold text-emerald-400 rounded px-2 py-1 outline-none">
+      <div class="card-block">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="font-size: 12px; font-weight: bold; text-transform: uppercase; color: #fbbf24;">Active Job / Project</label>
+          <select id="projectStatus" style="background-color: #0f172a; border: 1px solid #475569; color: #34d399; font-weight: bold; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
             <option value="Draft">Draft</option>
             <option value="Sent">Sent to Client</option>
             <option value="Approved">Approved</option>
@@ -48,128 +104,124 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-400 mb-1">Load Saved Job</label>
-          <select id="projectSelector" class="w-full bg-slate-900 border-2 border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-white outline-none">
+          <label style="display: block; font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 2px;">Load Saved Job</label>
+          <select id="projectSelector" class="input-field">
             <!-- Populated via JS -->
           </select>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-400 mb-1">Project / Job Name</label>
-          <input type="text" id="activeJobTitle" placeholder="e.g. Smith - Main Panel Upgrade" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-sm text-white font-bold focus:border-amber-500 outline-none">
+          <label style="display: block; font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 2px;">Project / Job Name</label>
+          <input type="text" id="activeJobTitle" placeholder="e.g. Smith - Main Panel Upgrade" class="input-field">
         </div>
 
-        <div class="grid grid-cols-3 gap-2 pt-1">
-          <button id="btnNewProject" type="button" class="bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs touch-btn">➕ New</button>
-          <button id="btnSaveProject" type="button" class="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs touch-btn">💾 Save</button>
-          <button id="btnArchiveProject" type="button" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded-lg text-xs touch-btn">📦 Archive</button>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;">
+          <button id="btnNewProject" type="button" style="background-color: #334155; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">➕ New</button>
+          <button id="btnSaveProject" type="button" style="background-color: #2563eb; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">💾 Save</button>
+          <button id="btnArchiveProject" type="button" style="background-color: #334155; color: #cbd5e1; border: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 12px;">📦 Archive</button>
         </div>
       </div>
 
       <!-- DOCUMENT TYPE & CLIENT DETAILS -->
-      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
-        <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
-          <button id="btnQuote" type="button" class="flex-1 font-extrabold rounded-md py-2 text-center bg-amber-500 text-slate-950">Quote / Estimate</button>
-          <button id="btnInvoice" type="button" class="flex-1 font-extrabold rounded-md py-2 text-center text-slate-400">Final Invoice</button>
+      <div class="card-block">
+        <div style="display: flex; background-color: #0f172a; padding: 4px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 12px;">
+          <button id="btnQuote" type="button" style="flex: 1; font-weight: 800; border-radius: 6px; padding: 8px 0; text-align: center; background-color: #f59e0b; color: #020617; border: none;">Quote / Estimate</button>
+          <button id="btnInvoice" type="button" style="flex: 1; font-weight: 800; border-radius: 6px; padding: 8px 0; text-align: center; color: #94a3b8; background: transparent; border: none;">Final Invoice</button>
         </div>
 
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Name</label>
-            <input type="text" id="clientName" placeholder="e.g. Mary Smith" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Customer Email</label>
-            <input type="email" id="clientEmail" placeholder="mary@example.com" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Job Scope / Address</label>
-            <input type="text" id="projectName" placeholder="e.g. Kitchen Re-Wire & Recessed Lights" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 outline-none">
-          </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #94a3b8;">Customer Name</label>
+          <input type="text" id="clientName" placeholder="e.g. Mary Smith" class="input-field">
+        </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #94a3b8;">Customer Email</label>
+          <input type="email" id="clientEmail" placeholder="mary@example.com" class="input-field">
+        </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #94a3b8;">Job Scope / Address</label>
+          <input type="text" id="projectName" placeholder="e.g. Kitchen Re-Wire & Recessed Lights" class="input-field">
         </div>
       </div>
 
       <!-- PRESET LIBRARY -->
-      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">⚡ Master Trade Preset Library</h2>
+      <div class="card-block">
+        <h2 style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #fbbf24; margin: 0 0 12px 0;">⚡ Master Trade Preset Library</h2>
         
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">1. Select Trade Specialty</label>
-            <select id="tradeSelector" class="w-full bg-slate-900 border-2 border-amber-500/50 rounded-lg p-3 text-sm text-amber-300 font-extrabold outline-none">
-              <option value="electrical">⚡ Electrical Projects (Top 100)</option>
-              <option value="framing_drywall">🔨 Framing & Drywall (Top 50)</option>
-              <option value="plumbing">🚰 Plumbing Repairs (Top 50)</option>
-              <option value="handyman">🛠️ Generic Handyman Work (Top 50)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">2. Filter Sub-Category</label>
-            <select id="presetCategory" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-sm text-white font-bold outline-none">
-              <!-- Dynamically populated -->
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-400 mb-1">3. Select Specific Job Preset</label>
-            <select id="presetSelector" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-3 text-sm text-white font-bold outline-none">
-              <!-- Dynamically populated -->
-            </select>
-          </div>
-
-          <button id="btnAddPreset" type="button" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-lg text-sm shadow flex items-center justify-center gap-1 active:bg-amber-600">
-            ➕ Add Selected Preset
-          </button>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #94a3b8;">1. Select Trade Specialty</label>
+          <select id="tradeSelector" class="input-field" style="border-color: rgba(245, 158, 11, 0.5); color: #fde047;">
+            <option value="electrical">⚡ Electrical Projects (Top 100)</option>
+            <option value="framing_drywall">🔨 Framing & Drywall (Top 50)</option>
+            <option value="plumbing">🚰 Plumbing Repairs (Top 50)</option>
+            <option value="handyman">🛠️ Generic Handyman Work (Top 50)</option>
+          </select>
         </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #94a3b8;">2. Filter Sub-Category</label>
+          <select id="presetCategory" class="input-field">
+            <!-- Dynamically populated via JS -->
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #94a3b8;">3. Select Specific Job Preset</label>
+          <select id="presetSelector" class="input-field">
+            <!-- Dynamically populated via JS -->
+          </select>
+        </div>
+
+        <button id="btnAddPreset" type="button" class="btn-gold" style="margin-top: 8px;">
+          ➕ Add Selected Preset
+        </button>
       </div>
 
       <!-- LINE ITEMS SECTION -->
-      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
-        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-          <h2 class="text-base font-extrabold text-white">Itemized Scope & Change Orders</h2>
-          <button id="btnAddLineItem" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-2 rounded-lg text-xs touch-btn">
+      <div class="card-block">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 12px;">
+          <h2 style="font-size: 16px; font-weight: 800; margin: 0;">Itemized Scope & Change Orders</h2>
+          <button id="btnAddLineItem" type="button" style="background-color: #059669; color: white; font-weight: 800; padding: 6px 12px; border-radius: 6px; border: none; font-size: 12px; cursor: pointer;">
             + Custom Item
           </button>
         </div>
 
-        <div id="itemsContainer" class="space-y-3">
+        <div id="itemsContainer" style="display: flex; flex-direction: column; gap: 12px;">
           <!-- Dynamic Line Items -->
         </div>
       </div>
 
       <!-- TRAVEL & MILEAGE CHARGE -->
-      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">🚗 Travel & Mileage Charge</h2>
-        <div class="grid grid-cols-2 gap-3">
+      <div class="card-block">
+        <h2 style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #fbbf24; margin: 0 0 12px 0;">🚗 Travel & Mileage Charge</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Round-Trip Miles</label>
-            <input type="number" id="mileageMiles" value="0" min="0" placeholder="e.g. 25" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8;">Round-Trip Miles</label>
+            <input type="number" id="mileageMiles" value="0" min="0" placeholder="e.g. 25" class="input-field">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Rate per Mile ($)</label>
-            <input type="number" id="mileageRate" value="0.67" step="0.01" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8;">Rate per Mile ($)</label>
+            <input type="number" id="mileageRate" value="0.67" step="0.01" class="input-field">
           </div>
         </div>
       </div>
 
       <!-- TAX, MARKUP & DEPOSIT TERMS -->
-      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-amber-400">Terms, Markup & Tax Rates</h2>
-        <div class="grid grid-cols-2 gap-3">
+      <div class="card-block">
+        <h2 style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #fbbf24; margin: 0 0 12px 0;">Terms, Markup & Tax Rates</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Material Markup %</label>
-            <input type="number" id="markupPct" value="15" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8;">Material Markup %</label>
+            <input type="number" id="markupPct" value="15" class="input-field">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">PA Sales Tax %</label>
-            <input type="number" id="taxPct" value="6" step="0.5" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8;">PA Sales Tax %</label>
+            <input type="number" id="taxPct" value="6" step="0.5" class="input-field">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Required Job Deposit</label>
-          <select id="depositPct" class="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-2.5 text-white font-bold">
+          <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8;">Required Job Deposit</label>
+          <select id="depositPct" class="input-field">
             <option value="0">No Deposit (100% Due Upon Completion)</option>
             <option value="25">25% Deposit Required to Schedule</option>
             <option value="33.33">33% Deposit Required to Schedule</option>
@@ -179,61 +231,61 @@
       </div>
 
       <!-- GRAND TOTAL & ACTIONS -->
-      <div class="bg-slate-950 p-5 rounded-2xl border-2 border-amber-500/50 shadow-2xl space-y-4">
-        <div class="space-y-2 text-sm">
-          <div class="flex justify-between text-slate-400">
+      <div class="card-block" style="background-color: #020617; border: 2px solid rgba(245, 158, 11, 0.5);">
+        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8;">
             <span>Materials Total:</span>
             <span id="dispMat">$0.00</span>
           </div>
-          <div class="flex justify-between text-slate-400">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8;">
             <span>Markup & Overhead:</span>
             <span id="dispMarkup">$0.00</span>
           </div>
-          <div class="flex justify-between text-slate-400">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8;">
             <span>Labor Total:</span>
             <span id="dispLabor">$0.00</span>
           </div>
-          <div class="flex justify-between text-slate-400">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8;">
             <span>Travel / Mileage:</span>
             <span id="dispTravel">$0.00</span>
           </div>
-          <div class="flex justify-between text-slate-400">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8;">
             <span>PA Sales Tax (6%):</span>
             <span id="dispTax">$0.00</span>
           </div>
           
-          <div class="border-t border-slate-800 pt-2 flex justify-between font-black text-2xl text-amber-400">
+          <div style="border-top: 1px solid #1e293b; padding-top: 8px; margin-top: 4px; display: flex; justify-content: space-between; font-weight: 900; font-size: 22px; color: #fbbf24;">
             <span>TOTAL DUE:</span>
             <span id="dispGrandTotal">$0.00</span>
           </div>
 
-          <div id="depositBreakdownRow" class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 space-y-1 mt-2">
-            <div class="flex justify-between text-xs text-amber-300 font-bold">
+          <div id="depositBreakdownRow" style="background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px; margin-top: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #fde047; font-weight: bold;">
               <span>Deposit Due Now:</span>
               <span id="dispDepositVal">$0.00</span>
             </div>
-            <div class="flex justify-between text-xs text-slate-400">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-top: 4px;">
               <span>Balance Due Upon Completion:</span>
               <span id="dispBalanceVal">$0.00</span>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 pt-2">
-          <a id="btnSendEmail" href="mailto:" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl text-base shadow-lg flex items-center justify-center gap-2 touch-btn">
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
+          <a id="btnSendEmail" href="mailto:" class="btn-gold">
             ✉️ Send via Email App
           </a>
-          <button id="btnPrintPDF" type="button" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-500 text-amber-400 font-bold py-3.5 rounded-xl text-base shadow flex items-center justify-center gap-2 touch-btn">
+          <button id="btnPrintPDF" type="button" class="btn-dark">
             📄 Print / Save PDF Document
           </button>
         </div>
       </div>
 
       <!-- LIVE ON-PAGE DOCUMENT PREVIEW SECTION -->
-      <div class="pt-4 border-t border-slate-700 space-y-2">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400">📄 Live Document Preview</h2>
+      <div style="padding-top: 16px; border-top: 1px solid #334155;">
+        <h2 style="font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: #fbbf24; margin-bottom: 8px;">📄 Live Document Preview</h2>
         
-        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-2xl overflow-hidden text-slate-900 border border-slate-300">
+        <div style="background-color: #ffffff; border-radius: 12px; padding: 20px; color: #0f172a; border: 1px solid #cbd5e1; box-sizing: border-box;">
           <div id="documentSheet" style="width: 100%; box-sizing: border-box; background: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4;">
             
             <!-- HEADER -->
@@ -343,28 +395,28 @@
   </div> <!-- END OF #app-container -->
 
   <!-- SETTINGS MODAL -->
-  <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
-      <h3 class="text-lg font-bold text-amber-400 border-b border-slate-700 pb-2">Edit Contractor Branding</h3>
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-center: center; z-index: 50; padding: 16px;">
+    <div style="background-color: #1e293b; border: 1px solid #334155; padding: 20px; border-radius: 16px; max-width: 384px; width: 100%; box-sizing: border-box;">
+      <h3 style="font-size: 18px; font-weight: bold; color: #fbbf24; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-top: 0;">Edit Contractor Branding</h3>
       <div>
-        <label class="block text-xs font-bold text-slate-400 mb-1">Company / Contractor Name</label>
-        <input type="text" id="editBizName" class="w-full bg-slate-900 border rounded p-2 text-white">
+        <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8; margin-bottom: 4px;">Company / Contractor Name</label>
+        <input type="text" id="editBizName" class="input-field">
       </div>
       <div>
-        <label class="block text-xs font-bold text-slate-400 mb-1">Phone Number & License #</label>
-        <input type="text" id="editBizInfo" class="w-full bg-slate-900 border rounded p-2 text-white">
+        <label style="display: block; font-size: 12px; font-weight: bold; color: #94a3b8; margin-bottom: 4px;">Phone Number & License #</label>
+        <input type="text" id="editBizInfo" class="input-field">
       </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button id="btnCancelSettings" type="button" class="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg text-xs">Cancel</button>
-        <button id="btnSaveSettings" type="button" class="px-4 py-2 bg-amber-500 text-slate-950 font-extrabold rounded-lg text-xs">Save Branding</button>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px;">
+        <button id="btnCancelSettings" type="button" style="padding: 8px 16px; background-color: #334155; color: white; border: none; font-weight: bold; border-radius: 8px; font-size: 12px;">Cancel</button>
+        <button id="btnSaveSettings" type="button" style="padding: 8px 16px; background-color: #f59e0b; color: #020617; border: none; font-weight: 800; border-radius: 8px; font-size: 12px;">Save Branding</button>
       </div>
     </div>
   </div>
 
-  <!-- Script dependencies loaded with version tags -->
-  <script src="js/storage.js?v=200"></script>
-  <script src="js/calculators.js?v=200"></script>
-  <script src="js/presets.js?v=200"></script>
-  <script src="js/app.js?v=200"></script>
+  <!-- Script dependencies loaded with version query parameters -->
+  <script src="js/storage.js?v=300"></script>
+  <script src="js/calculators.js?v=300"></script>
+  <script src="js/presets.js?v=300"></script>
+  <script src="js/app.js?v=300"></script>
 </body>
 </html>
