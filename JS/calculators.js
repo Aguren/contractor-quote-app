@@ -1,13 +1,17 @@
-const Calculator = {
-  calculateTotals(lineItems, markupPercent, taxPercent) {
-    const markupPct = (parseFloat(markupPercent) || 0) / 100;
-    const taxPct = (parseFloat(taxPercent) || 0) / 100;
-
+// Calculator Module for Estimating Totals, Markup, and Sales Tax
+window.Calculator = {
+  calculateTotals: function(lineItems, markupPct, taxPct) {
     let matSub = 0;
     let laborSub = 0;
 
-    lineItems.forEach(item => {
-      const total = item.qty * item.unitPrice;
+    const parsedMarkupPct = parseFloat(markupPct) || 0;
+    const parsedTaxPct = parseFloat(taxPct) || 0;
+
+    (lineItems || []).forEach(item => {
+      const qty = parseFloat(item.qty) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
+      const total = qty * unitPrice;
+
       if (item.type === 'Material') {
         matSub += total;
       } else {
@@ -15,17 +19,22 @@ const Calculator = {
       }
     });
 
-    const markupVal = matSub * markupPct;
-    const matTotal = matSub + markupVal;
-    const taxVal = (matTotal + laborSub) * taxPct;
-    const grandTotal = matTotal + laborSub + taxVal;
+    // Material markup calculation
+    const markupVal = matSub * (parsedMarkupPct / 100);
+
+    // PA Sales tax applies to materials + material markup
+    const taxableBase = matSub + markupVal;
+    const taxVal = taxableBase * (parsedTaxPct / 100);
+
+    // Grand Total sum
+    const grandTotal = matSub + markupVal + laborSub + taxVal;
 
     return {
-      matSub,
-      markupVal,
-      laborSub,
-      taxVal,
-      grandTotal
+      matSub: matSub,
+      laborSub: laborSub,
+      markupVal: markupVal,
+      taxVal: taxVal,
+      grandTotal: grandTotal
     };
   }
 };
