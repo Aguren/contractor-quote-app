@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-         window.onerror = function(msg, url, line) {
-            alert("JS Error: " + msg + "\nFile: " + url + "\nLine: " + line);
-        };
-    </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Assan Balkov Electrical Contractor</title>
   
+  <!-- MOBILE ERROR DIAGNOSTIC CATCHER -->
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      alert("⚠️ JS ERROR DETECTED ON LIVE HOST:\n\nMessage: " + msg + "\nFile: " + url + "\nLine: " + line);
+      return false;
+    };
+  </script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=23">
+  <link rel="stylesheet" href="css/styles.css?v=100">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-24">
 
@@ -367,10 +370,10 @@
     </div>
   </div>
 
-  <!-- Script dependencies loaded in order -->
-  <script src="js/storage.js?v=2"></script>
-  <script src="js/calculators.js?v=2"></script>
-  <script src="js/presets.js?v=2"></script>
-  <script src="js/app.js?v=2"></script>
+  <!-- Script dependencies loaded with strict version query tags -->
+  <script src="js/storage.js?v=101"></script>
+  <script src="js/calculators.js?v=101"></script>
+  <script src="js/presets.js?v=101"></script>
+  <script src="js/app.js?v=101"></script>
 </body>
 </html>
