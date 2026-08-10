@@ -1,8 +1,12 @@
 let currentDocType = 'Quote';
 let currentProjectId = null;
 let projects = StorageManager.getProjects();
-
 let lineItems = [];
+
+// Safely get presets array
+function getPresetLibrary() {
+  return window.PresetLibrary || (typeof PresetLibrary !== 'undefined' ? PresetLibrary : []);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   initBranding();
@@ -18,12 +22,16 @@ function initBranding() {
   const defaultName = 'Assan Balkov Electrical Contractor';
   const defaultInfo = '(570) 236-6942 • Lic # XXXXXXXX';
 
-  document.getElementById('bizNameDisplay').innerText = brand.name || defaultName;
-  document.getElementById('bizInfoDisplay').innerText = brand.info || defaultInfo;
+  const nameEl = document.getElementById('bizNameDisplay');
+  const infoEl = document.getElementById('bizInfoDisplay');
+
+  if (nameEl) nameEl.innerText = brand.name || defaultName;
+  if (infoEl) infoEl.innerText = brand.info || defaultInfo;
 }
 
 function renderLineItems() {
   const container = document.getElementById('itemsContainer');
+  if (!container) return;
   container.innerHTML = '';
 
   if (lineItems.length === 0) {
@@ -49,15 +57,15 @@ function renderLineItems() {
         </div>
         <button type="button" class="btn-remove-item text-red-400 font-bold text-xs px-1" data-index="${i}">✕ Remove</button>
       </div>
-      <input type="text" value="${item.desc}" placeholder="Description" class="item-desc w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white" data-index="${i}">
+      <input type="text" value="${item.desc || ''}" placeholder="Description" class="item-desc w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white" data-index="${i}">
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div>
           <label class="text-slate-400 block mb-0.5">Qty</label>
-          <input type="number" value="${item.qty}" min="0" class="item-qty w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-bold" data-index="${i}">
+          <input type="number" value="${item.qty !== undefined ? item.qty : 1}" min="0" class="item-qty w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-bold" data-index="${i}">
         </div>
         <div>
           <label class="text-slate-400 block mb-0.5">Unit Cost ($)</label>
-          <input type="number" value="${item.unitPrice}" min="0" class="item-price w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-bold" data-index="${i}">
+          <input type="number" value="${item.unitPrice !== undefined ? item.unitPrice : 0}" min="0" class="item-price w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-bold" data-index="${i}">
         </div>
       </div>
     `;
@@ -113,8 +121,11 @@ function attachLineItemListeners() {
 }
 
 function updateCategoryDropdown() {
-  const trade = document.getElementById('tradeSelector').value;
+  const tradeEl = document.getElementById('tradeSelector');
   const catSelect = document.getElementById('presetCategory');
+  if (!tradeEl || !catSelect) return;
+
+  const trade = tradeEl.value || 'electrical';
   catSelect.innerHTML = '<option value="all">-- All Categories --</option>';
 
   const categoryMaps = {
@@ -156,34 +167,39 @@ function updateCategoryDropdown() {
 }
 
 function populatePresetDropdown() {
-  const trade = document.getElementById('tradeSelector').value;
-  const catSelect = document.getElementById('presetCategory').value;
+  const tradeEl = document.getElementById('tradeSelector');
+  const catSelect = document.getElementById('presetCategory');
   const presetSelect = document.getElementById('presetSelector');
 
-  if (!presetSelect || typeof PresetLibrary === 'undefined') return;
+  if (!tradeEl || !catSelect || !presetSelect) return;
+
+  const trade = tradeEl.value || 'electrical';
+  const cat = catSelect.value || 'all';
+  const lib = getPresetLibrary();
 
   presetSelect.innerHTML = '<option value="">-- Choose an Item to Add --</option>';
 
-  const filtered = PresetLibrary.filter(item => {
+  const filtered = lib.filter(item => {
     const matchesTrade = item.trade === trade;
-    const matchesCategory = catSelect === 'all' || item.category === catSelect;
+    const matchesCategory = cat === 'all' || item.category === cat;
     return matchesTrade && matchesCategory;
   });
 
   filtered.forEach((item, idx) => {
     const opt = document.createElement('option');
     opt.value = idx;
-    opt.innerText = `[${item.type}] ${item.desc} - $${item.unitPrice.toFixed(2)}`;
+    opt.innerText = `[${item.type}] ${item.desc} - $${(item.unitPrice || 0).toFixed(2)}`;
     opt.setAttribute('data-desc', item.desc);
-    opt.setAttribute('data-qty', item.qty);
-    opt.setAttribute('data-price', item.unitPrice);
-    opt.setAttribute('data-type', item.type);
+    opt.setAttribute('data-qty', item.qty || 1);
+    opt.setAttribute('data-price', item.unitPrice || 0);
+    opt.setAttribute('data-type', item.type || 'Labor');
     presetSelect.appendChild(opt);
   });
 }
 
 function addSelectedPresetItem() {
   const presetSelect = document.getElementById('presetSelector');
+  if (!presetSelect) return;
   const opt = presetSelect.options[presetSelect.selectedIndex];
   
   if (!opt || !opt.getAttribute('data-desc')) return;
@@ -202,12 +218,12 @@ function addSelectedPresetItem() {
 }
 
 function updateCalculations() {
-  const markup = document.getElementById('markupPct').value;
-  const tax = document.getElementById('taxPct').value;
-  const depPct = parseFloat(document.getElementById('depositPct').value) || 0;
+  const markup = document.getElementById('markupPct')?.value || 15;
+  const tax = document.getElementById('taxPct')?.value || 6;
+  const depPct = parseFloat(document.getElementById('depositPct')?.value) || 0;
 
-  const miles = parseFloat(document.getElementById('mileageMiles').value) || 0;
-  const mileRate = parseFloat(document.getElementById('mileageRate').value) || 0;
+  const miles = parseFloat(document.getElementById('mileageMiles')?.value) || 0;
+  const mileRate = parseFloat(document.getElementById('mileageRate')?.value) || 0;
   const travelFee = miles * mileRate;
 
   const totals = Calculator.calculateTotals(lineItems, markup, tax);
@@ -216,25 +232,25 @@ function updateCalculations() {
   const depositVal = grandTotalWithTravel * (depPct / 100);
   const balanceVal = grandTotalWithTravel - depositVal;
 
-  // 1. Update On-Screen Display Controls
-  document.getElementById('dispMat').innerText = `$${totals.matSub.toFixed(2)}`;
-  document.getElementById('dispMarkup').innerText = `$${totals.markupVal.toFixed(2)}`;
-  document.getElementById('dispLabor').innerText = `$${totals.laborSub.toFixed(2)}`;
-  document.getElementById('dispTravel').innerText = `$${travelFee.toFixed(2)}`;
-  document.getElementById('dispTax').innerText = `$${totals.taxVal.toFixed(2)}`;
-  document.getElementById('dispGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
+  // 1. Update Controls
+  const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+  setTxt('dispMat', `$${totals.matSub.toFixed(2)}`);
+  setTxt('dispMarkup', `$${totals.markupVal.toFixed(2)}`);
+  setTxt('dispLabor', `$${totals.laborSub.toFixed(2)}`);
+  setTxt('dispTravel', `$${travelFee.toFixed(2)}`);
+  setTxt('dispTax', `$${totals.taxVal.toFixed(2)}`);
+  setTxt('dispGrandTotal', `$${grandTotalWithTravel.toFixed(2)}`);
+  setTxt('dispDepositVal', `$${depositVal.toFixed(2)}`);
+  setTxt('dispBalanceVal', `$${balanceVal.toFixed(2)}`);
 
-  document.getElementById('dispDepositVal').innerText = `$${depositVal.toFixed(2)}`;
-  document.getElementById('dispBalanceVal').innerText = `$${balanceVal.toFixed(2)}`;
-
-  // 2. Update Live Document Preview Sheet
+  // 2. Update Document
   const brand = StorageManager.getBranding();
-  document.getElementById('docBizName').innerText = brand.name || 'Assan Balkov Electrical Contractor';
-  document.getElementById('docBizInfo').innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
-  document.getElementById('docType').innerText = `OFFICIAL ${currentDocType.toUpperCase()}`;
-  document.getElementById('docDate').innerText = new Date().toLocaleDateString();
-  document.getElementById('docClientName').innerText = document.getElementById('clientName').value || 'Valued Customer';
-  document.getElementById('docJobScope').innerText = document.getElementById('projectName').value || 'Electrical Work Scope';
+  setTxt('docBizName', brand.name || 'Assan Balkov Electrical Contractor');
+  setTxt('docBizInfo', brand.info || '(570) 236-6942 • Lic # XXXXXXXX');
+  setTxt('docType', `OFFICIAL ${currentDocType.toUpperCase()}`);
+  setTxt('docDate', new Date().toLocaleDateString());
+  setTxt('docClientName', document.getElementById('clientName')?.value || 'Valued Customer');
+  setTxt('docJobScope', document.getElementById('projectName')?.value || 'Electrical Work Scope');
 
   const tbody = document.getElementById('docTableBody');
   if (tbody) {
@@ -253,37 +269,35 @@ function updateCalculations() {
           </td>
           <td style="padding: 6px 2px; text-align: center;">${item.type}</td>
           <td style="padding: 6px 2px; text-align: center;">${item.qty}</td>
-          <td style="padding: 6px 2px; text-align: right;">$${item.unitPrice.toFixed(2)}</td>
-          <td style="padding: 6px 2px; text-align: right;">$${(item.qty * item.unitPrice).toFixed(2)}</td>
+          <td style="padding: 6px 2px; text-align: right;">$${(item.unitPrice || 0).toFixed(2)}</td>
+          <td style="padding: 6px 2px; text-align: right;">$${((item.qty || 1) * (item.unitPrice || 0)).toFixed(2)}</td>
         `;
         tbody.appendChild(tr);
       });
     }
   }
 
-  document.getElementById('docSubtotal').innerText = `$${(totals.matSub + totals.laborSub).toFixed(2)}`;
-  document.getElementById('docTravelFee').innerText = `$${travelFee.toFixed(2)}`;
-  document.getElementById('docTaxMarkup').innerText = `$${(totals.markupVal + totals.taxVal).toFixed(2)}`;
-  document.getElementById('docGrandTotal').innerText = `$${grandTotalWithTravel.toFixed(2)}`;
+  setTxt('docSubtotal', `$${(totals.matSub + totals.laborSub).toFixed(2)}`);
+  setTxt('docTravelFee', `$${travelFee.toFixed(2)}`);
+  setTxt('docTaxMarkup', `$${(totals.markupVal + totals.taxVal).toFixed(2)}`);
+  setTxt('docGrandTotal', `$${grandTotalWithTravel.toFixed(2)}`);
+  setTxt('docDepositLabel', `${depPct}%`);
+  setTxt('docDepositVal', `$${depositVal.toFixed(2)}`);
+  setTxt('docBalanceVal', `$${balanceVal.toFixed(2)}`);
 
-  document.getElementById('docDepositLabel').innerText = `${depPct}%`;
-  document.getElementById('docDepositVal').innerText = `$${depositVal.toFixed(2)}`;
-  document.getElementById('docBalanceVal').innerText = `$${balanceVal.toFixed(2)}`;
-
-  // 3. Dynamically update email button mailto link
   updateEmailLink(brand, totals, grandTotalWithTravel, depositVal, balanceVal);
 
   return { ...totals, travelFee, grandTotalWithTravel, depositVal, balanceVal };
 }
 
 function updateEmailLink(brand, totals, grandTotal, depositVal, balanceVal) {
-  const clientName = document.getElementById('clientName').value || 'Customer';
-  const clientEmail = document.getElementById('clientEmail').value || '';
-  const proj = document.getElementById('projectName').value || 'Electrical Work';
+  const clientName = document.getElementById('clientName')?.value || 'Customer';
+  const clientEmail = document.getElementById('clientEmail')?.value || '';
+  const proj = document.getElementById('projectName')?.value || 'Electrical Work';
 
   let summary = '';
   lineItems.forEach(item => {
-    summary += `• ${item.desc} ${item.isChangeOrder ? '[CHANGE ORDER]' : ''} (${item.qty} x $${item.unitPrice.toFixed(2)}) = $${(item.qty * item.unitPrice).toFixed(2)}\n`;
+    summary += `• ${item.desc} ${item.isChangeOrder ? '[CHANGE ORDER]' : ''} (${item.qty} x $${(item.unitPrice || 0).toFixed(2)}) = $${((item.qty || 1) * (item.unitPrice || 0)).toFixed(2)}\n`;
   });
 
   const body = 
@@ -316,58 +330,65 @@ ${brand.info || '(570) 236-6942'}`;
 
 function bindEvents() {
   const addBtn = document.getElementById('btnAddLineItem');
-  
-  const handleAddLineItem = (e) => {
-    e.preventDefault();
-    lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material', isChangeOrder: false });
-    renderLineItems();
-    updateCalculations();
+  if (addBtn) {
+    addBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material', isChangeOrder: false });
+      renderLineItems();
+      updateCalculations();
+    });
+  }
+
+  const bind = (id, event, fn) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, fn);
   };
 
-  addBtn.addEventListener('click', handleAddLineItem);
+  bind('tradeSelector', 'change', updateCategoryDropdown);
+  bind('presetCategory', 'change', populatePresetDropdown);
+  bind('btnAddPreset', 'click', addSelectedPresetItem);
+  bind('presetSelector', 'change', addSelectedPresetItem);
 
-  document.getElementById('tradeSelector').addEventListener('change', updateCategoryDropdown);
-  document.getElementById('presetCategory').addEventListener('change', populatePresetDropdown);
-  document.getElementById('btnAddPreset').addEventListener('click', addSelectedPresetItem);
-  document.getElementById('presetSelector').addEventListener('change', addSelectedPresetItem);
+  bind('clientName', 'input', updateCalculations);
+  bind('clientEmail', 'input', updateCalculations);
+  bind('projectName', 'input', updateCalculations);
+  bind('activeJobTitle', 'input', updateCalculations);
 
-  document.getElementById('clientName').addEventListener('input', updateCalculations);
-  document.getElementById('clientEmail').addEventListener('input', updateCalculations);
-  document.getElementById('projectName').addEventListener('input', updateCalculations);
-  document.getElementById('activeJobTitle').addEventListener('input', updateCalculations);
+  bind('mileageMiles', 'input', updateCalculations);
+  bind('mileageRate', 'input', updateCalculations);
 
-  document.getElementById('mileageMiles').addEventListener('input', updateCalculations);
-  document.getElementById('mileageRate').addEventListener('input', updateCalculations);
+  bind('btnQuote', 'click', () => setDocumentType('Quote'));
+  bind('btnInvoice', 'click', () => setDocumentType('Invoice'));
 
-  document.getElementById('btnQuote').addEventListener('click', () => setDocumentType('Quote'));
-  document.getElementById('btnInvoice').addEventListener('click', () => setDocumentType('Invoice'));
+  bind('btnSaveProject', 'click', saveCurrentProject);
+  bind('btnNewProject', 'click', createNewProject);
+  bind('btnArchiveProject', 'click', archiveCurrentProject);
+  bind('projectSelector', 'change', loadSelectedProject);
 
-  document.getElementById('btnSaveProject').addEventListener('click', saveCurrentProject);
-  document.getElementById('btnNewProject').addEventListener('click', createNewProject);
-  document.getElementById('btnArchiveProject').addEventListener('click', archiveCurrentProject);
-  document.getElementById('projectSelector').addEventListener('change', loadSelectedProject);
+  bind('btnPrintPDF', 'click', printIsolatedDocument);
 
-  document.getElementById('btnPrintPDF').addEventListener('click', printIsolatedDocument);
+  bind('btnOpenSettings', 'click', toggleSettingsModal);
+  bind('btnCancelSettings', 'click', toggleSettingsModal);
+  bind('btnSaveSettings', 'click', saveBusinessSettings);
 
-  document.getElementById('btnOpenSettings').addEventListener('click', toggleSettingsModal);
-  document.getElementById('btnCancelSettings').addEventListener('click', toggleSettingsModal);
-  document.getElementById('btnSaveSettings').addEventListener('click', saveBusinessSettings);
-
-  document.getElementById('markupPct').addEventListener('input', updateCalculations);
-  document.getElementById('taxPct').addEventListener('input', updateCalculations);
-  document.getElementById('depositPct').addEventListener('change', updateCalculations);
-  document.getElementById('projectStatus').addEventListener('change', updateCalculations);
+  bind('markupPct', 'input', updateCalculations);
+  bind('taxPct', 'input', updateCalculations);
+  bind('depositPct', 'change', updateCalculations);
+  bind('projectStatus', 'change', updateCalculations);
 }
 
 function setDocumentType(type) {
   currentDocType = type;
-  document.getElementById('btnQuote').className = type === 'Quote' ? 'flex-1 font-extrabold rounded-md py-2 text-center bg-amber-500 text-slate-950' : 'flex-1 font-extrabold rounded-md py-2 text-center text-slate-400';
-  document.getElementById('btnInvoice').className = type === 'Invoice' ? 'flex-1 font-extrabold rounded-md py-2 text-center bg-amber-500 text-slate-950' : 'flex-1 font-extrabold rounded-md py-2 text-center text-slate-400';
+  const btnQ = document.getElementById('btnQuote');
+  const btnI = document.getElementById('btnInvoice');
+  if (btnQ) btnQ.className = type === 'Quote' ? 'flex-1 font-extrabold rounded-md py-2 text-center bg-amber-500 text-slate-950' : 'flex-1 font-extrabold rounded-md py-2 text-center text-slate-400';
+  if (btnI) btnI.className = type === 'Invoice' ? 'flex-1 font-extrabold rounded-md py-2 text-center bg-amber-500 text-slate-950' : 'flex-1 font-extrabold rounded-md py-2 text-center text-slate-400';
   updateCalculations();
 }
 
 function refreshProjectSelector() {
   const sel = document.getElementById('projectSelector');
+  if (!sel) return;
   sel.innerHTML = '<option value="">-- Load Saved Job --</option>';
   Object.keys(projects).forEach(id => {
     const p = projects[id];
@@ -385,17 +406,17 @@ function saveCurrentProject() {
 
   projects[currentProjectId] = {
     id: currentProjectId,
-    activeJobTitle: document.getElementById('activeJobTitle').value,
-    clientName: document.getElementById('clientName').value,
-    clientEmail: document.getElementById('clientEmail').value,
-    projectName: document.getElementById('projectName').value,
+    activeJobTitle: document.getElementById('activeJobTitle')?.value || '',
+    clientName: document.getElementById('clientName')?.value || '',
+    clientEmail: document.getElementById('clientEmail')?.value || '',
+    projectName: document.getElementById('projectName')?.value || '',
     docType: currentDocType,
-    status: document.getElementById('projectStatus').value,
-    markupPct: document.getElementById('markupPct').value,
-    taxPct: document.getElementById('taxPct').value,
-    mileageMiles: document.getElementById('mileageMiles').value,
-    mileageRate: document.getElementById('mileageRate').value,
-    depositPct: document.getElementById('depositPct').value,
+    status: document.getElementById('projectStatus')?.value || 'Draft',
+    markupPct: document.getElementById('markupPct')?.value || 15,
+    taxPct: document.getElementById('taxPct')?.value || 6,
+    mileageMiles: document.getElementById('mileageMiles')?.value || 0,
+    mileageRate: document.getElementById('mileageRate')?.value || 0.67,
+    depositPct: document.getElementById('depositPct')?.value || 50,
     lineItems: lineItems
   };
 
@@ -405,22 +426,25 @@ function saveCurrentProject() {
 }
 
 function loadSelectedProject() {
-  const id = document.getElementById('projectSelector').value;
+  const sel = document.getElementById('projectSelector');
+  if (!sel) return;
+  const id = sel.value;
   if (!id || !projects[id]) return;
 
   currentProjectId = id;
   const p = projects[id];
 
-  document.getElementById('activeJobTitle').value = p.activeJobTitle || '';
-  document.getElementById('clientName').value = p.clientName || '';
-  document.getElementById('clientEmail').value = p.clientEmail || '';
-  document.getElementById('projectName').value = p.projectName || '';
-  document.getElementById('projectStatus').value = p.status || 'Draft';
-  document.getElementById('markupPct').value = p.markupPct || 15;
-  document.getElementById('taxPct').value = p.taxPct || 6;
-  document.getElementById('mileageMiles').value = p.mileageMiles || 0;
-  document.getElementById('mileageRate').value = p.mileageRate || 0.67;
-  document.getElementById('depositPct').value = p.depositPct || 50;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('activeJobTitle', p.activeJobTitle || '');
+  setVal('clientName', p.clientName || '');
+  setVal('clientEmail', p.clientEmail || '');
+  setVal('projectName', p.projectName || '');
+  setVal('projectStatus', p.status || 'Draft');
+  setVal('markupPct', p.markupPct || 15);
+  setVal('taxPct', p.taxPct || 6);
+  setVal('mileageMiles', p.mileageMiles || 0);
+  setVal('mileageRate', p.mileageRate || 0.67);
+  setVal('depositPct', p.depositPct || 50);
 
   lineItems = p.lineItems || [];
   setDocumentType(p.docType || 'Quote');
@@ -430,14 +454,15 @@ function loadSelectedProject() {
 
 function createNewProject() {
   currentProjectId = null;
-  document.getElementById('activeJobTitle').value = '';
-  document.getElementById('clientName').value = '';
-  document.getElementById('clientEmail').value = '';
-  document.getElementById('projectName').value = '';
-  document.getElementById('projectStatus').value = 'Draft';
-  document.getElementById('mileageMiles').value = 0;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('activeJobTitle', '');
+  setVal('clientName', '');
+  setVal('clientEmail', '');
+  setVal('projectName', '');
+  setVal('projectStatus', 'Draft');
+  setVal('mileageMiles', 0);
+  setVal('projectSelector', '');
   lineItems = [];
-  document.getElementById('projectSelector').value = '';
   renderLineItems();
   updateCalculations();
 }
@@ -452,9 +477,12 @@ function archiveCurrentProject() {
 
 function printIsolatedDocument() {
   updateCalculations();
-  const docHtml = document.getElementById('documentSheet').outerHTML;
+  const sheet = document.getElementById('documentSheet');
+  if (!sheet) return;
 
+  const docHtml = sheet.outerHTML;
   const printWindow = window.open('', '_blank');
+  
   if (!printWindow) {
     window.print();
     return;
@@ -464,7 +492,7 @@ function printIsolatedDocument() {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>${currentDocType} - ${document.getElementById('clientName').value || 'Customer'}</title>
+        <title>${currentDocType} - ${document.getElementById('clientName')?.value || 'Customer'}</title>
         <style>
           @page { size: portrait; margin: 0.4in; }
           body { font-family: Arial, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 10px; }
@@ -488,15 +516,17 @@ function printIsolatedDocument() {
 
 function toggleSettingsModal() {
   const modal = document.getElementById('settingsModal');
+  if (!modal) return;
   modal.classList.toggle('hidden');
   const brand = StorageManager.getBranding();
-  document.getElementById('editBizName').value = brand.name || 'Assan Balkov Electrical Contractor';
-  document.getElementById('editBizInfo').value = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('editBizName', brand.name || 'Assan Balkov Electrical Contractor');
+  setVal('editBizInfo', brand.info || '(570) 236-6942 • Lic # XXXXXXXX');
 }
 
 function saveBusinessSettings() {
-  const n = document.getElementById('editBizName').value;
-  const i = document.getElementById('editBizInfo').value;
+  const n = document.getElementById('editBizName')?.value;
+  const i = document.getElementById('editBizInfo')?.value;
   StorageManager.saveBranding(n, i);
   initBranding();
   toggleSettingsModal();
