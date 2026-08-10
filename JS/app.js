@@ -1,10 +1,45 @@
 let currentDocType = 'Quote';
 let currentProjectId = null;
-let projects = StorageManager.getProjects();
 let lineItems = [];
 
-// Safely obtain preset library from global window scope
-function getPresetLibrary() {
+// Internal fallback helpers to prevent crashes if storage/calc scripts fail to load
+const SafeStorage = {
+  getProjects: () => {
+    try { return JSON.parse(localStorage.getItem('assan_projects')) || {}; }
+    catch(e) { return {}; }
+  },
+  saveProjects: (p) => localStorage.setItem('assan_projects', JSON.stringify(p)),
+  getBranding: () => {
+    try {
+      return JSON.parse(localStorage.getItem('assan_branding')) || {
+        name: 'Assan Balkov Electrical Contractor',
+        info: '(570) 236-6942 • Lic # XXXXXXXX'
+      };
+    } catch(e) {
+      return { name: 'Assan Balkov Electrical Contractor', info: '(570) 236-6942 • Lic # XXXXXXXX' };
+    }
+  },
+  saveBranding: (name, info) => localStorage.setItem('assan_branding', JSON.stringify({ name, info }))
+};
+
+function safeCalculate(items, markupPct, taxPct) {
+  let matSub = 0, laborSub = 0;
+  (items || []).forEach(item => {
+    const qty = parseFloat(item.qty) || 0;
+    const price = parseFloat(item.unitPrice) || 0;
+    const total = qty * price;
+    if (item.type === 'Material') matSub += total;
+    else laborSub += total;
+  });
+  const markupVal = matSub * ((parseFloat(markupPct) || 0) / 100);
+  const taxVal = (matSub + markupVal) * ((parseFloat(taxPct) || 0) / 100);
+  const grandTotal = matSub + markupVal + laborSub + taxVal;
+  return { matSub, laborSub, markupVal, taxVal, grandTotal };
+}
+
+let projects = SafeStorage.getProjects();
+
+function getPresets() {
   return window.PresetLibrary || (typeof PresetLibrary !== 'undefined' ? PresetLibrary : []);
 }
 
@@ -18,15 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initBranding() {
-  const brand = StorageManager.getBranding();
-  const defaultName = 'Assan Balkov Electrical Contractor';
-  const defaultInfo = '(570) 236-6942 • Lic # XXXXXXXX';
-
-  const nameEl = document.getElementById('bizNameDisplay');
-  const infoEl = document.getElementById('bizInfoDisplay');
-
-  if (nameEl) nameEl.innerText = brand.name || defaultName;
-  if (infoEl) infoEl.innerText = brand.info || defaultInfo;
+  const brand = SafeStorage.getBranding();
+  const n = document.getElementById('bizNameDisplay');
+  const i = document.getElementById('bizInfoDisplay');
+  if (n) n.innerText = brand.name || 'Assan Balkov Electrical Contractor';
+  if (i) i.innerText = brand.info || '(570) 236-6942 • Lic # XXXXXXXX';
 }
 
 function renderLineItems() {
@@ -40,9 +71,9 @@ function renderLineItems() {
   }
 
   lineItems.forEach((item, i) => {
-    const isChangeOrder = item.isChangeOrder || false;
+    const isCO = item.isChangeOrder || false;
     const row = document.createElement('div');
-    row.className = `p-3 rounded-xl border ${isChangeOrder ? 'bg-amber-950/30 border-amber-500/60' : 'bg-slate-900 border-slate-700'} space-y-2`;
+    row.className = `p-3 rounded-xl border ${isCO ? 'bg-amber-950/30 border-amber-500/60' : 'bg-slate-900 border-slate-700'} space-y-2`;
     row.innerHTML = `
       <div class="flex justify-between items-center gap-2">
         <div class="flex items-center gap-2">
@@ -51,13 +82,13 @@ function renderLineItems() {
             <option value="Material" ${item.type==='Material'?'selected':''}>Material</option>
           </select>
           <label class="flex items-center gap-1 text-[11px] font-bold text-amber-400 cursor-pointer">
-            <input type="checkbox" class="item-change-order" data-index="${i}" ${isChangeOrder ? 'checked' : ''}>
+            <input type="checkbox" class="item-change-order" data-index="${i}" ${isCO ? 'checked' : ''}>
             <span>Change Order</span>
           </label>
         </div>
         <button type="button" class="btn-remove-item text-red-400 font-bold text-xs px-1" data-index="${i}">✕ Remove</button>
       </div>
-      <input type="text" value="${item.desc || ''}" placeholder="Description" class="item-desc w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white" data-index="${i}">
+      <input type="text" value="${item.desc || ''}" placeholder="Item Description" class="item-desc w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white" data-index="${i}">
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div>
           <label class="text-slate-400 block mb-0.5">Qty</label>
@@ -77,46 +108,22 @@ function renderLineItems() {
 
 function attachLineItemListeners() {
   document.querySelectorAll('.item-type').forEach(el => {
-    el.addEventListener('change', (e) => {
-      lineItems[e.target.dataset.index].type = e.target.value;
-      updateCalculations();
-    });
+    el.onchange = (e) => { lineItems[e.target.dataset.index].type = e.target.value; updateCalculations(); };
   });
-
   document.querySelectorAll('.item-change-order').forEach(el => {
-    el.addEventListener('change', (e) => {
-      lineItems[e.target.dataset.index].isChangeOrder = e.target.checked;
-      updateCalculations();
-    });
+    el.onchange = (e) => { lineItems[e.target.dataset.index].isChangeOrder = e.target.checked; updateCalculations(); };
   });
-
   document.querySelectorAll('.item-desc').forEach(el => {
-    el.addEventListener('input', (e) => {
-      lineItems[e.target.dataset.index].desc = e.target.value;
-      updateCalculations();
-    });
+    el.oninput = (e) => { lineItems[e.target.dataset.index].desc = e.target.value; updateCalculations(); };
   });
-
   document.querySelectorAll('.item-qty').forEach(el => {
-    el.addEventListener('input', (e) => {
-      lineItems[e.target.dataset.index].qty = parseFloat(e.target.value) || 0;
-      updateCalculations();
-    });
+    el.oninput = (e) => { lineItems[e.target.dataset.index].qty = parseFloat(e.target.value) || 0; updateCalculations(); };
   });
-
   document.querySelectorAll('.item-price').forEach(el => {
-    el.addEventListener('input', (e) => {
-      lineItems[e.target.dataset.index].unitPrice = parseFloat(e.target.value) || 0;
-      updateCalculations();
-    });
+    el.oninput = (e) => { lineItems[e.target.dataset.index].unitPrice = parseFloat(e.target.value) || 0; updateCalculations(); };
   });
-
   document.querySelectorAll('.btn-remove-item').forEach(el => {
-    el.addEventListener('click', (e) => {
-      lineItems.splice(e.target.dataset.index, 1);
-      renderLineItems();
-      updateCalculations();
-    });
+    el.onclick = (e) => { lineItems.splice(e.target.dataset.index, 1); renderLineItems(); updateCalculations(); };
   });
 }
 
@@ -175,7 +182,7 @@ function populatePresetDropdown() {
 
   const trade = tradeEl.value || 'electrical';
   const cat = catSelect.value || 'all';
-  const lib = getPresetLibrary();
+  const lib = getPresets();
 
   presetSelect.innerHTML = '<option value="">-- Choose an Item to Add --</option>';
 
@@ -201,7 +208,6 @@ function addSelectedPresetItem() {
   const presetSelect = document.getElementById('presetSelector');
   if (!presetSelect) return;
   const opt = presetSelect.options[presetSelect.selectedIndex];
-  
   if (!opt || !opt.getAttribute('data-desc')) return;
 
   lineItems.push({
@@ -226,13 +232,12 @@ function updateCalculations() {
   const mileRate = parseFloat(document.getElementById('mileageRate')?.value) || 0;
   const travelFee = miles * mileRate;
 
-  const totals = Calculator.calculateTotals(lineItems, markup, tax);
+  const totals = safeCalculate(lineItems, markup, tax);
   const grandTotalWithTravel = totals.grandTotal + travelFee;
 
   const depositVal = grandTotalWithTravel * (depPct / 100);
   const balanceVal = grandTotalWithTravel - depositVal;
 
-  // 1. Update Display Controls
   const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
   setTxt('dispMat', `$${totals.matSub.toFixed(2)}`);
   setTxt('dispMarkup', `$${totals.markupVal.toFixed(2)}`);
@@ -243,8 +248,7 @@ function updateCalculations() {
   setTxt('dispDepositVal', `$${depositVal.toFixed(2)}`);
   setTxt('dispBalanceVal', `$${balanceVal.toFixed(2)}`);
 
-  // 2. Update Live Document
-  const brand = StorageManager.getBranding();
+  const brand = SafeStorage.getBranding();
   setTxt('docBizName', brand.name || 'Assan Balkov Electrical Contractor');
   setTxt('docBizInfo', brand.info || '(570) 236-6942 • Lic # XXXXXXXX');
   setTxt('docType', `OFFICIAL ${currentDocType.toUpperCase()}`);
@@ -323,26 +327,23 @@ Best regards,
 ${brand.name || 'Assan Balkov Electrical Contractor'}
 ${brand.info || '(570) 236-6942'}`;
 
-  const mailto = `mailto:${clientEmail}?subject=${encodeURIComponent('Official ' + currentDocType + ': ' + proj)}&body=${encodeURIComponent(body)}`;
+  const mailto = `mailto:${encodeURIComponent(clientEmail)}?subject=${encodeURIComponent('Official ' + currentDocType + ': ' + proj)}&body=${encodeURIComponent(body)}`;
   const btn = document.getElementById('btnSendEmail');
   if (btn) btn.setAttribute('href', mailto);
 }
 
 function bindEvents() {
-  const addBtn = document.getElementById('btnAddLineItem');
-  if (addBtn) {
-    addBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material', isChangeOrder: false });
-      renderLineItems();
-      updateCalculations();
-    });
-  }
-
   const bind = (id, event, fn) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener(event, fn);
   };
+
+  bind('btnAddLineItem', 'click', (e) => {
+    e.preventDefault();
+    lineItems.push({ desc: '', qty: 1, unitPrice: 0, type: 'Material', isChangeOrder: false });
+    renderLineItems();
+    updateCalculations();
+  });
 
   bind('tradeSelector', 'change', updateCategoryDropdown);
   bind('presetCategory', 'change', populatePresetDropdown);
@@ -365,7 +366,10 @@ function bindEvents() {
   bind('btnArchiveProject', 'click', archiveCurrentProject);
   bind('projectSelector', 'change', loadSelectedProject);
 
-  bind('btnPrintPDF', 'click', printIsolatedDocument);
+  bind('btnPrintPDF', 'click', () => {
+    updateCalculations();
+    window.print();
+  });
 
   bind('btnOpenSettings', 'click', toggleSettingsModal);
   bind('btnCancelSettings', 'click', toggleSettingsModal);
@@ -420,7 +424,7 @@ function saveCurrentProject() {
     lineItems: lineItems
   };
 
-  StorageManager.saveProjects(projects);
+  SafeStorage.saveProjects(projects);
   refreshProjectSelector();
   alert('Job Estimate Saved!');
 }
@@ -470,55 +474,16 @@ function createNewProject() {
 function archiveCurrentProject() {
   if (!currentProjectId) return;
   delete projects[currentProjectId];
-  StorageManager.saveProjects(projects);
+  SafeStorage.saveProjects(projects);
   createNewProject();
   refreshProjectSelector();
-}
-
-function printIsolatedDocument() {
-  updateCalculations();
-  const sheet = document.getElementById('documentSheet');
-  if (!sheet) return;
-
-  const docHtml = sheet.outerHTML;
-  const printWindow = window.open('', '_blank');
-  
-  if (!printWindow) {
-    window.print();
-    return;
-  }
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${currentDocType} - ${document.getElementById('clientName')?.value || 'Customer'}</title>
-        <style>
-          @page { size: portrait; margin: 0.4in; }
-          body { font-family: Arial, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 10px; }
-          table { border-collapse: collapse; }
-        </style>
-      </head>
-      <body>
-        ${docHtml}
-        <script>
-          window.onload = function() {
-            window.print();
-            window.onafterprint = function() { window.close(); };
-          };
-        </script>
-      </body>
-    </html>
-  `);
-
-  printWindow.document.close();
 }
 
 function toggleSettingsModal() {
   const modal = document.getElementById('settingsModal');
   if (!modal) return;
   modal.classList.toggle('hidden');
-  const brand = StorageManager.getBranding();
+  const brand = SafeStorage.getBranding();
   const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
   setVal('editBizName', brand.name || 'Assan Balkov Electrical Contractor');
   setVal('editBizInfo', brand.info || '(570) 236-6942 • Lic # XXXXXXXX');
@@ -527,7 +492,7 @@ function toggleSettingsModal() {
 function saveBusinessSettings() {
   const n = document.getElementById('editBizName')?.value;
   const i = document.getElementById('editBizInfo')?.value;
-  StorageManager.saveBranding(n, i);
+  SafeStorage.saveBranding(n, i);
   initBranding();
   toggleSettingsModal();
 }
